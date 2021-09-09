@@ -30,7 +30,7 @@ Function global:Start-AzDeploy
         [validateset('P0', 'S1', 'S2', 'S3', 'D2', 'D3', 'D4', 'T5', 'U6', 'P7', 'G0', 'G1', 'M0', 'A0')]
         [string] $Deployment,
 
-        [validateset('ADF', 'PSO', 'HUB', 'ABC', 'AOA', 'HAA')]
+        [validateset('ADF', 'PSO', 'HUB', 'ABC', 'AOA', 'HAA', 'EBT')]
         [alias('AppName')]
         [string] $App = 'AOA',
 

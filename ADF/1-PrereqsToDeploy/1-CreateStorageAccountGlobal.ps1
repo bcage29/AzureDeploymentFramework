@@ -1,5 +1,5 @@
 param (
-    [String]$APP = 'HUB'
+    [String]$APP = 'EBT'
 )
 
 $ArtifactStagingDirectory = "$PSScriptRoot\.."

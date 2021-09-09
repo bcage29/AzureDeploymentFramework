@@ -1,0 +1,48 @@
+{
+  "Global": {
+    "tenantId": "72f988bf-86f1-41af-91ab-2d7cd011db47",
+    "SubscriptionID": "c17bc536-fb8f-4e4c-969f-444787c5f6cf",
+    "hubSubscriptionID": "c17bc536-fb8f-4e4c-969f-444787c5f6cf",
+    "OrgName": "WBC",
+    "AppName": "EBT",
+    "SAName": "aeu2wbcebtg1saglobal",
+    "GlobalRGName": "AEU2-WBC-EBT-RG-G1",
+    "PrimaryLocation": "EastUS2",
+    "PrimaryPrefix": "AEU2",
+    "SecondaryLocation": "CentralUS",
+    "SecondaryPrefix": "ACU1",
+    "PublicIPAddressforRemoteAccess": [
+      "71.75.96.16/32"
+    ],
+    "vmAdminUserName": "botadmin",
+    "CertURLs": [
+      "*.contoso.com"
+    ],
+    "ADDomainName": "contoso.com",
+    "DomainName": "psthing.com",
+    "DomainNameExt": "psthing.com",
+    "__DomainNameExtSubscriptionID": "c17bc536-fb8f-4e4c-969f-444787c5f6cf",
+    "__DomainNameExtRG": "ACU1-WBC-EBT-RG-G1",
+    "CertificateThumbprint": "8148CEA6B4B85FFF2BA4C6C05F48659241F6610B",
+    "GHProject": "bcage29",
+    "ADOProject": "ADF",
+    "AZDevOpsOrg": "AzureDeploymentFramework",
+    "ServicePrincipalAdmins": [
+      "BW"
+    ],
+    "defaultWAFsslpolicyName": "AppGwSslPolicy20170401S",
+    "apimPublisherEmail": "alerts@contoso.com",
+    "alertRecipients": [
+      "alerts@contoso.com"
+    ],
+    "clusterApplication": "e339d587-44e0-4d14-9d96-53eca83c3500",
+    "clientApplication": "1ed6cff0-5226-4bb3-9055-096e9fc6feec",
+    "sqlCredentialName": "wbc",
+    "sqlAutobackupRetentionPeriod": 5,
+    "RolesLookup": {
+      "BW": "528b1170-7a6c-4970-94bb-0eb34e1ae947",
+      "BC": "3e156fbc-f456-4e4e-b7c8-e8be9830b8e0",
+      "Microsoft.Azure.Frontdoor": "21bf1420-2ed9-48b9-bf6d-ece1337d4fd1"
+    }
+  }
+}
