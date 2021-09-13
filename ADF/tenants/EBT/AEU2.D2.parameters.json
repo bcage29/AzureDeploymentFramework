@@ -3,7 +3,7 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "Prefix": {
-      "value": "ACU1"
+      "value": "AEU2"
     },
     "Environment": {
       "value": "D"
@@ -14,7 +14,7 @@
     "vmAdminPassword": {
       "reference": {
         "keyVault": {
-          "id": "/subscriptions/b8f402aa-20f7-4888-b45c-3cf086dad9c3/resourceGroups/ACU1-BRW-AOA-RG-P0/providers/Microsoft.KeyVault/vaults/ACU1-BRW-AOA-P0-kvVLT01"
+          "id": "/subscriptions/c17bc536-fb8f-4e4c-969f-444787c5f6cf/resourceGroups/AEU2-WBC-EBT-RG-P0/providers/Microsoft.KeyVault/vaults/AEU2-WBC-EBT-P0-kvVLT01"
         },
         "secretName": "localadmin"
       }
@@ -22,7 +22,7 @@
     "sshPublic": {
       "reference": {
         "keyVault": {
-          "id": "/subscriptions/b8f402aa-20f7-4888-b45c-3cf086dad9c3/resourceGroups/ACU1-BRW-AOA-RG-P0/providers/Microsoft.KeyVault/vaults/ACU1-BRW-AOA-P0-kvVLT01"
+          "id": "/subscriptions/c17bc536-fb8f-4e4c-969f-444787c5f6cf/resourceGroups/AEU2-WBC-EBT-RG-P0/providers/Microsoft.KeyVault/vaults/AEU2-WBC-EBT-P0-kvVLT01"
         },
         "secretName": "sshPublic"
       }
@@ -30,25 +30,17 @@
     "devOpsPat": {
       "reference": {
         "keyVault": {
-          "id": "/subscriptions/b8f402aa-20f7-4888-b45c-3cf086dad9c3/resourceGroups/ACU1-BRW-AOA-RG-P0/providers/Microsoft.KeyVault/vaults/ACU1-BRW-AOA-P0-kvVLT01"
+          "id": "/subscriptions/c17bc536-fb8f-4e4c-969f-444787c5f6cf/resourceGroups/AEU2-WBC-EBT-RG-P0/providers/Microsoft.KeyVault/vaults/AEU2-WBC-EBT-P0-kvVLT01"
         },
         "secretName": "devOpsPat"
       }
     },
-    // "saKey": {
-    //   "reference": {
-    //     "keyVault": {
-    //       "id": "/subscriptions/b8f402aa-20f7-4888-b45c-3cf086dad9c3/resourceGroups/ACU1-BRW-AOA-RG-P0/providers/Microsoft.KeyVault/vaults/ACU1-BRW-AOA-P0-kvVLT01"
-    //     },
-    //     "secretName": "saKey"
-    //   }
-    // },
     "Stage": {
       "value": {
         "RG": 1,
         "RBAC": 1,
         "UAI": 1,
-        "SP": 1,
+        "SP": 0, //
         "KV": 1,
         "OMS": 1,
         "OMSSolutions": 0,
@@ -60,7 +52,7 @@
         "NSGHUB": 0,
         "NSGSPOKE": 1,
         "NetworkWatcher": 0,
-        "FlowLogs": 1,
+        "FlowLogs": 0, //
         "VNet": 1,
         "VNetPeering": 0,
         "DNSPublicZone": 0,
@@ -74,12 +66,12 @@
         "ERGW": 0,
         "ADPrimary": 0,
         "ADSecondary": 0,
-        "CreateADPDC": 1,
-        "CreateADBDC": 1,
-        "ILB": 1, //
+        "CreateADPDC": 0,
+        "CreateADBDC": 0,
+        "ILB": 0, //
         "InitialDOP": 0,
         "VMApp": 0, //
-        "ConfigSQLAO": 1,
+        "ConfigSQLAO": 0,
         "VMAppLinux": 0,
         "VMSQL": 0,  //
         "VMFILE": 0,
@@ -140,17 +132,17 @@
               {
                 "Name": "Private DNS Zone Contributor",
                 "RG": "P0",
-                "Tenant": "AOA"
+                "Tenant": "EBT"
               },
               {
                 "Name": "Key Vault Certificates Officer",
                 "RG": "P0",
-                "Tenant": "AOA"
+                "Tenant": "EBT"
               },
               {
                 "Name": "Key Vault Secrets User",
                 "RG": "P0",
-                "Tenant": "AOA"
+                "Tenant": "EBT"
               },
               {
                 "Name": "Network Contributor"
@@ -171,20 +163,20 @@
               {
                 "Name": "Storage File Data SMB Share Contributor",
                 "RG": "G1",
-                "Prefix": "ACU1",
-                "Tenant": "AOA"
+                "Prefix": "AEU2",
+                "Tenant": "EBT"
               },
               {
                 "Name": "Storage Blob Data Contributor",
                 "RG": "G1",
-                "Prefix": "ACU1",
-                "Tenant": "AOA"
+                "Prefix": "AEU2",
+                "Tenant": "EBT"
               },
               {
                 "Name": "Storage Queue Data Contributor",
                 "RG": "G1",
-                "Prefix": "ACU1",
-                "Tenant": "AOA"
+                "Prefix": "AEU2",
+                "Tenant": "EBT"
               },
               {
                 "Name": "Storage Account Key Operator Service Role"
@@ -197,8 +189,8 @@
               {
                 "Name": "Storage Account Key Operator Service Role",
                 "RG": "G1",
-                "Prefix": "ACU1",
-                "Tenant": "AOA"
+                "Prefix": "AEU2",
+                "Tenant": "EBT"
               }
             ]
           },
@@ -208,7 +200,7 @@
               {
                 "Name": "Key Vault Secrets User",
                 "RG": "P0",
-                "Tenant": "AOA"
+                "Tenant": "EBT"
               }
             ]
           },
@@ -283,47 +275,47 @@
               {
                 "Name": "Reader and Data Access",
                 "RG": "G1",
-                "Tenant": "AOA"
+                "Tenant": "EBT"
               },
               {
                 "Name": "Storage Account Key Operator Service Role",
                 "RG": "G1",
-                "Tenant": "AOA"
+                "Tenant": "EBT"
               },
               {
                 "Name": "Log Analytics Contributor",
                 "RG": "G1",
-                "Tenant": "AOA"
+                "Tenant": "EBT"
               },
-              {
-                "Name": "Automation_Account_Contributor",
-                "RG": "P0",
-                "Tenant": "AOA"
-              },
-              {
-                "Name": "Key_Vault_Reader",
-                "RG": "P0",
-                "Tenant": "AOA"
-              },
+              // {
+              //   "Name": "Automation_Account_Contributor",
+              //   "RG": "P0",
+              //   "Tenant": "EBT"
+              // },
+              // {
+              //   "Name": "Key_Vault_Reader",
+              //   "RG": "P0",
+              //   "Tenant": "EBT"
+              // },
               {
                 "Name": "Key Vault Secrets User",
                 "RG": "P0",
-                "Tenant": "AOA"
+                "Tenant": "EBT"
               },
               {
                 "Name": "Network Contributor",
                 "RG": "P0",
-                "Tenant": "AOA"
+                "Tenant": "EBT"
               },
               {
                 "Name": "DNS Zone Contributor",
                 "RG": "P0",
-                "Tenant": "AOA"
+                "Tenant": "EBT"
               },
               {
                 "Name": "DNS Zone Contributor",
                 "RG": "P0",
-                "Tenant": "AOA",
+                "Tenant": "EBT",
                 "PREFIX": "AEU2"
               }
             ]

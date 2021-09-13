@@ -1,5 +1,5 @@
 param (
-    [string]$Enviro = 'P0',
+    [string]$Enviro = 'D2',
     [string]$App = 'EBT'
 )
 import-module -Name "$PSScriptRoot\..\..\release-az\azSet.psm1" -force
@@ -24,12 +24,12 @@ break
 # Create Service principal for Env. + add GH secret or AZD Service connections
 # Infra in Github
 set-location -path ADF:\
-. ADF:\1-PrereqsToDeploy\4-Start-CreateServicePrincipalGH.ps1 @Current -Prefix ACU1 -Environments G0 #D2, D3, P0, G0, G1, S1, T5, P7
-. ADF:\1-PrereqsToDeploy\4-Start-CreateServicePrincipalGH.ps1 @Current -Prefix AEU2 -Environments P0, S1, T5, P7
+. ADF:\1-PrereqsToDeploy\4-Start-CreateServicePrincipalGH.ps1 @Current -Prefix AEU2 -Environments G0 #D2, D3, P0, G0, G1, S1, T5, P7
+. ADF:\1-PrereqsToDeploy\4-Start-CreateServicePrincipalGH.ps1 @Current -Prefix ACU1 -Environments P0, S1, T5, P7
 
 # App pipelines in AZD
-. ADF:\1-PrereqsToDeploy\4-Start-CreateServicePrincipal.ps1 @Current -Prefix ACU1 -Environments D2 # D3, P0, G0, G1, S1, T5, P7
-. ADF:\1-PrereqsToDeploy\4-Start-CreateServicePrincipal.ps1 @Current -Prefix AEU2 -Environments P0, S1, T5, P7
+. ADF:\1-PrereqsToDeploy\4-Start-CreateServicePrincipal.ps1 @Current -Prefix AEU2 -Environments D2 # D3, P0, G0, G1, S1, T5, P7
+. ADF:\1-PrereqsToDeploy\4-Start-CreateServicePrincipal.ps1 @Current -Prefix ACU1 -Environments P0, S1, T5, P7
 
 # Bootstrap Hub RGs and Keyvaults
 . ADF:\1-PrereqsToDeploy\1-CreateHUBKeyVaults.ps1 @Current
@@ -45,72 +45,72 @@ set-location -path ADF:\
 # Deploy Environment
 
 # Global  sub deploy for $env:Enviro
-AzDeploy @Current -Prefix ACU1 -TF ADF:\bicep\00-ALL-SUB.bicep -SubscriptionDeploy -FullUpload     #<-- Deploys from Pipelines Region 1
-AzDeploy @Current -Prefix AEU2 -TF ADF:\bicep\00-ALL-SUB.bicep -SubscriptionDeploy     #<-- Deploys from Pipelines Region 2
+AzDeploy @Current -Prefix AEU2 -TF ADF:\bicep\00-ALL-SUB.bicep -SubscriptionDeploy     #<-- Deploys from Pipelines Region 1
+AzDeploy @Current -Prefix ACU1 -TF ADF:\bicep\00-ALL-SUB.bicep -SubscriptionDeploy     #<-- Deploys from Pipelines Region 2
 
-AzDeploy @Current -Prefix ACU1 -TF ADF:\bicep\sub-RBAC.bicep -SubscriptionDeploy
-AzDeploy @Current -Prefix ACU1 -TF ADF:\templates-base\00-azuredeploy-mg-ManagementGroups.json   #todo
+AzDeploy @Current -Prefix AEU2 -TF ADF:\bicep\sub-RBAC.bicep -SubscriptionDeploy
+AzDeploy @Current -Prefix AEU2 -TF ADF:\templates-base\00-azuredeploy-mg-ManagementGroups.json   #todo
 
-AzDeploy @Current -Prefix ACU1 -TF ADF:\templates-base\00-azuredeploy-Test2.json
+AzDeploy @Current -Prefix AEU2 -TF ADF:\templates-base\00-azuredeploy-Test2.json
 
 # $env:Enviro RG deploy
-AzDeploy @Current -Prefix ACU1 -TF ADF:\bicep\01-ALL-RG.bicep      #<-- Deploys from Pipelines Region 1
-AzDeploy @Current -Prefix AEU2 -TF ADF:\bicep\01-ALL-RG.bicep      #<-- Deploys from Pipelines Region 2
+AzDeploy @Current -Prefix AEU2 -TF ADF:\bicep\01-ALL-RG.bicep      #<-- Deploys from Pipelines Region 1
+AzDeploy @Current -Prefix ACU1 -TF ADF:\bicep\01-ALL-RG.bicep      #<-- Deploys from Pipelines Region 2
 
-AzDeploy @Current -Prefix ACU1 -TF ADF:\bicep\NSG.hub.bicep
 AzDeploy @Current -Prefix AEU2 -TF ADF:\bicep\NSG.hub.bicep
+AzDeploy @Current -Prefix ACU1 -TF ADF:\bicep\NSG.hub.bicep
 
-AzDeploy @Current -Prefix ACU1 -TF ADF:\bicep\NSG.spoke.bicep
 AzDeploy @Current -Prefix AEU2 -TF ADF:\bicep\NSG.spoke.bicep
-
-AzDeploy @Current -Prefix ACU1 -TF ADF:\bicep\DNSPrivate.bicep
-AzDeploy @Current -Prefix ACU1 -TF ADF:\bicep\VNET.bicep
-AzDeploy @Current -Prefix ACU1 -TF ADF:\templates-base\06-azuredeploy-WAF.json   #todo
+AzDeploy @Current -Prefix ACU1 -TF ADF:\bicep\NSG.spoke.bicep
 
 AzDeploy @Current -Prefix AEU2 -TF ADF:\bicep\DNSPrivate.bicep
 AzDeploy @Current -Prefix AEU2 -TF ADF:\bicep\VNET.bicep
-AzDeploy @Current -Prefix AEU2 -TF ADF:\templates-base\06-azuredeploy-WAF.json    #todo
+AzDeploy @Current -Prefix AEU2 -TF ADF:\templates-base\06-azuredeploy-WAF.json   #todo
 
-AzDeploy @Current -Prefix ACU1 -TF ADF:\bicep\OMS.bicep
-AzDeploy @Current -Prefix ACU1 -TF ADF:\templates-base\23-azuredeploy-Dashboard.json    #todo
+AzDeploy @Current -Prefix ACU1 -TF ADF:\bicep\DNSPrivate.bicep
+AzDeploy @Current -Prefix ACU1 -TF ADF:\bicep\VNET.bicep
+AzDeploy @Current -Prefix ACU1 -TF ADF:\templates-base\06-azuredeploy-WAF.json    #todo
 
-AzDeploy @Current -Prefix ACU1 -TF ADF:\bicep\NetworkWatcher.bicep
-AzDeploy @Current -Prefix ACU1 -TF ADF:\bicep\NetworkFlowLogs.bicep
+AzDeploy @Current -Prefix AEU2 -TF ADF:\bicep\OMS.bicep
+AzDeploy @Current -Prefix AEU2 -TF ADF:\templates-base\23-azuredeploy-Dashboard.json    #todo
 
 AzDeploy @Current -Prefix AEU2 -TF ADF:\bicep\NetworkWatcher.bicep
 AzDeploy @Current -Prefix AEU2 -TF ADF:\bicep\NetworkFlowLogs.bicep
 
-AzDeploy @Current -Prefix ACU1 -TF ADF:\bicep\SA.bicep
-AzDeploy @Current -Prefix ACU1 -TF ADF:\bicep\SA.bicep -CN logs
+AzDeploy @Current -Prefix ACU1 -TF ADF:\bicep\NetworkWatcher.bicep
+AzDeploy @Current -Prefix ACU1 -TF ADF:\bicep\NetworkFlowLogs.bicep
 
-AzDeploy @Current -Prefix ACU1 -TF ADF:\bicep\KV.bicep
-AzDeploy @Current -Prefix ACU1 -TF ADF:\bicep\KV.bicep -CN App01,App02
-
+AzDeploy @Current -Prefix AEU2 -TF ADF:\bicep\SA.bicep
+AzDeploy @Current -Prefix AEU2 -TF ADF:\bicep\SA.bicep -CN logs
 
 AzDeploy @Current -Prefix AEU2 -TF ADF:\bicep\KV.bicep
+AzDeploy @Current -Prefix AEU2 -TF ADF:\bicep\KV.bicep -CN App01,App02
 
-AzDeploy @Current -Prefix ACU1 -TF ADF:\bicep\AppServiceFunction.bicep
 
-AzDeploy @Current -Prefix ACU1 -TF ADF:\bicep\APIM.bicep
+AzDeploy @Current -Prefix ACU1 -TF ADF:\bicep\KV.bicep
 
-AzDeploy @Current -Prefix ACU1 -TF ADF:\bicep\FD.bicep
+AzDeploy @Current -Prefix AEU2 -TF ADF:\bicep\AppServiceFunction.bicep
+
+AzDeploy @Current -Prefix AEU2 -TF ADF:\bicep\APIM.bicep
+
 AzDeploy @Current -Prefix AEU2 -TF ADF:\bicep\FD.bicep
+AzDeploy @Current -Prefix ACU1 -TF ADF:\bicep\FD.bicep
 
-AzDeploy @Current -Prefix ACU1 -TF ADF:\bicep\AKS.bicep
+AzDeploy @Current -Prefix AEU2 -TF ADF:\bicep\AKS.bicep
 
 # $env:Enviro AppServers Deploy
-AzDeploy @Current -Prefix ACU1 -TF ADF:\bicep\VM.bicep -DeploymentName ADPrimary
-AzDeploy @Current -Prefix ACU1 -TF ADF:\bicep\VM.bicep -DeploymentName ADSecondary
+AzDeploy @Current -Prefix AEU2 -TF ADF:\bicep\VM.bicep -DeploymentName ADPrimary
+AzDeploy @Current -Prefix AEU2 -TF ADF:\bicep\VM.bicep -DeploymentName ADSecondary
 
-AzDeploy @Current -Prefix ACU1 -TF ADF:\bicep\VM.bicep -DeploymentName AppServers
+AzDeploy @Current -Prefix AEU2 -TF ADF:\bicep\VM.bicep -DeploymentName AppServers
 
-AzDeploy @Current -Prefix ACU1 -TF ADF:\bicep\VM.bicep -DeploymentName AppServers -CN JMP02
+AzDeploy @Current -Prefix AEU2 -TF ADF:\bicep\VM.bicep -DeploymentName AppServers -CN JMP02
 
-AzDeploy @Current -Prefix ACU1 -TF ADF:\bicep\VM.bicep -DeploymentName AppServersLinux
+AzDeploy @Current -Prefix AEU2 -TF ADF:\bicep\VM.bicep -DeploymentName AppServersLinux
 
-AzDeploy @Current -Prefix ACU1 -TF ADF:\bicep\VM.bicep -DeploymentName SQLServers
+AzDeploy @Current -Prefix AEU2 -TF ADF:\bicep\VM.bicep -DeploymentName SQLServers
 
-AzDeploy @Current -Prefix ACU1 -TF ADF:\bicep\VM.bicep -DeploymentName ConfigSQLAO
+AzDeploy @Current -Prefix AEU2 -TF ADF:\bicep\VM.bicep -DeploymentName ConfigSQLAO
 
 ##########################################################
 # Stage and Upload DSC Resource Modules for AA
@@ -120,13 +120,13 @@ AzDeploy @Current -Prefix ACU1 -TF ADF:\bicep\VM.bicep -DeploymentName ConfigSQL
 ## these two steps only after 01-azuredeploy-OMS.json has been deployed, which includes the Automation account.
 
 # Using Azure Automation Pull Mode to host configurations - upload DSC Modules, prior to deploying AppServers
-. ADF:\1-PrereqsToDeploy\5.0-UpdateDSCModulesMainAA.ps1 @Current -Prefix ACU1 -AAEnvironment P0
 . ADF:\1-PrereqsToDeploy\5.0-UpdateDSCModulesMainAA.ps1 @Current -Prefix AEU2 -AAEnvironment P0
+. ADF:\1-PrereqsToDeploy\5.0-UpdateDSCModulesMainAA.ps1 @Current -Prefix ACU1 -AAEnvironment P0
 
 # upload mofs for a particular configuration, prior to deploying AppServers
-AzMofUpload @Current -Prefix ACU1 -AAEnvironment G1 -Roles IMG -NoDomain
-AzMofUpload @Current -Prefix ACU1 -AAEnvironment P0 -Roles SQLp,SQLs
+AzMofUpload @Current -Prefix AEU2 -AAEnvironment G1 -Roles IMG -NoDomain
+AzMofUpload @Current -Prefix AEU2 -AAEnvironment P0 -Roles SQLp,SQLs
 
 
 # ASR deploy
-AzDeploy @Current -Prefix ACU1 -TF ADF:\templates-base\21-azuredeploy-ASRSetup.json -SubscriptionDeploy -FullUpload
+AzDeploy @Current -Prefix AEU2 -TF ADF:\templates-base\21-azuredeploy-ASRSetup.json -SubscriptionDeploy -FullUpload

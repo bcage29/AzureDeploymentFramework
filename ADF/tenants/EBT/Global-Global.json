@@ -16,11 +16,11 @@
     ],
     "vmAdminUserName": "botadmin",
     "CertURLs": [
-      "*.contoso.com"
+      "*.brennencage.com"
     ],
-    "ADDomainName": "contoso.com",
-    "DomainName": "psthing.com",
-    "DomainNameExt": "psthing.com",
+    "ADDomainName": "brennencage.com",
+    "DomainName": "brennencage.com",
+    "DomainNameExt": "brennencage.com",
     "__DomainNameExtSubscriptionID": "c17bc536-fb8f-4e4c-969f-444787c5f6cf",
     "__DomainNameExtRG": "ACU1-WBC-EBT-RG-G1",
     "CertificateThumbprint": "8148CEA6B4B85FFF2BA4C6C05F48659241F6610B",
@@ -28,12 +28,13 @@
     "ADOProject": "ADF",
     "AZDevOpsOrg": "AzureDeploymentFramework",
     "ServicePrincipalAdmins": [
+      "BC",
       "BW"
     ],
     "defaultWAFsslpolicyName": "AppGwSslPolicy20170401S",
-    "apimPublisherEmail": "alerts@contoso.com",
+    "apimPublisherEmail": "alerts@brennencage.com",
     "alertRecipients": [
-      "alerts@contoso.com"
+      "alerts@brennencage.com"
     ],
     "clusterApplication": "e339d587-44e0-4d14-9d96-53eca83c3500",
     "clientApplication": "1ed6cff0-5226-4bb3-9055-096e9fc6feec",

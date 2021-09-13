@@ -113,19 +113,19 @@ Function global:Start-AzDeploy
     Write-Verbose "Storage Account is: [$StorageAccountName] and container is: [$StorageContainerName]" -Verbose
 
     # Do not create the Resource Groups in this file anymore, only validate that it exists.
-    if (-not $Subscription)
-    {
-        if ( -not (Get-AzResourceGroup -Name $ResourceGroupName -Verbose -ErrorAction SilentlyContinue))
-        {
-            $globalstorage = Get-AzStorageAccount | Where-Object StorageAccountName -Match g1saglobal | ForEach-Object ResourceGroupName
-            Write-Output "`n"
-            $Message = "[$ResourceGroupName] does not exist, switch Subscription OR SubscriptionDeploy, currently using: [$globalstorage]!!!"
-            Write-Verbose -Message "$('*' * ($Message.length + 8))" -Verbose
-            Write-Error -Message $Message -EA continue
-            Write-Verbose -Message "$('*' * ($Message.length + 8))" -Verbose
-            break 
-        }
-    }
+    # if (-not $Subscription)
+    # {
+    #     if ( -not (Get-AzResourceGroup -Name $ResourceGroupName -Verbose -ErrorAction SilentlyContinue))
+    #     {
+    #         $globalstorage = Get-AzStorageAccount | Where-Object StorageAccountName -Match g1saglobal | ForEach-Object ResourceGroupName
+    #         Write-Output "`n"
+    #         $Message = "[$ResourceGroupName] does not exist, switch Subscription OR SubscriptionDeploy, currently using: [$globalstorage]!!!"
+    #         Write-Verbose -Message "$('*' * ($Message.length + 8))" -Verbose
+    #         Write-Error -Message $Message -EA continue
+    #         Write-Verbose -Message "$('*' * ($Message.length + 8))" -Verbose
+    #         break 
+    #     }
+    # }
 
     $SASParams = @{
         Container  = $StorageContainerName 
