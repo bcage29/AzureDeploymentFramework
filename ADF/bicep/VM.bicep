@@ -66,7 +66,7 @@ var GlobalRGName = Global.GlobalRGName
 var AAResourceGroup = '${Prefix}-${Global.OrgName}-${Global.Appname}-RG-P0'
 var AAName = '${Prefix}${Global.OrgName}${Global.Appname}P0OMSAutomation'
 
-var Environment_var = {
+var EnvironmentLookup = {
   D: 'Dev'
   T: 'Test'
   I: 'Int'
@@ -181,14 +181,14 @@ var VM = [for (vm, index) in AppServers: {
   name: vm.Name
   match: ((Global.CN == '.') || contains(Global.CN, vm.Name)) ? bool('true') : bool('false')
   Extensions: contains(OSType[vm.OSType], 'RoleExtensions') ? union(Extensions, OSType[vm.OSType].RoleExtensions) : Extensions
-  DataDisk: contains(vm, 'DDRole') ? DataDiskInfo[vm.DDRole] : json('null')
+  DataDisk: contains(vm, 'DDRole') ? DataDiskInfo[vm.DDRole] : null
   vmHostName: toLower('${Prefix}${Global.AppName}${Environment}${DeploymentID}${vm.Name}')
-  AppInfo: contains(vm, 'AppInfo') ? vm.AppInfo : json('null')
+  AppInfo: contains(vm, 'AppInfo') ? vm.AppInfo : null
   windowsConfiguration: {
     enableAutomaticUpdates: true
     provisionVmAgent: true
     patchSettings: {
-      enableHotpatching: contains(vm, 'HotPatch') ? vm.HotPatch : json('null')
+      enableHotpatching: contains(OSType[vm.OSType], 'HotPatch') ? OSType[vm.OSType].HotPatch : false
       patchMode: contains(OSType[vm.OSType], 'patchMode') ? OSType[vm.OSType].patchMode : 'AutomaticByOS'
     }
   }
@@ -196,7 +196,7 @@ var VM = [for (vm, index) in AppServers: {
     enableAutomaticUpdates: true
     provisionVmAgent: true
     patchSettings: {
-      enableHotpatching: contains(vm, 'HotPatch') ? vm.HotPatch : json('null')
+      enableHotpatching: contains(OSType[vm.OSType], 'HotPatch') ? OSType[vm.OSType].HotPatch : false
       patchMode: contains(OSType[vm.OSType], 'patchMode') ? OSType[vm.OSType].patchMode : 'AutomaticByOS' //'AutomaticByPlatform' https://docs.microsoft.com/en-us/azure/virtual-machines/automatic-vm-guest-patching
     }
   }
@@ -258,7 +258,7 @@ module DISKLOOKUP 'y.disks.bicep' = [for (vm, index) in AppServers: if (VM[index
   }
 }]
 
-resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = [for (vm, index) in AppServers: if (VM[index].match) {
+resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-04-01' = [for (vm, index) in AppServers: if (VM[index].match) {
   name: '${Deployment}-vm${vm.Name}'
   location: resourceGroup().location
   identity: {
@@ -266,13 +266,15 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = [for (v
     userAssignedIdentities: contains(MSILookup, vm.ASNAME) ? userAssignedIdentities[MSILookup[vm.ASNAME]] : userAssignedIdentities.Default
   }
   tags: {
-    Environment: Environment_var[Environment]
+    Environment: EnvironmentLookup[Environment]
   }
-  zones: contains(vm, 'Zone') ? array(vm.Zone) : json('null')
-  plan: contains(OSType[vm.OSType], 'plan') ? OSType[vm.OSType].plan : json('null')
+  zones: contains(vm, 'Zone') ? array(vm.Zone) : null
+  plan: contains(OSType[vm.OSType], 'plan') ? OSType[vm.OSType].plan : null
   properties: {
-    licenseType: contains(OSType[vm.OSType], 'licenseType') ? OSType[vm.OSType].licenseType : json('null')
-    availabilitySet: contains(vm, 'Zone') ? json('null') : json('{"id":"${string(resourceId('Microsoft.Compute/availabilitySets', '${Deployment}-as${vm.ASName}'))}"}')
+    licenseType: contains(OSType[vm.OSType], 'licenseType') ? OSType[vm.OSType].licenseType : null
+    availabilitySet: contains(vm, 'Zone') ? null : {
+      id: '${resourceId('Microsoft.Compute/availabilitySets', '${Deployment}-as${vm.ASName}')}'
+    }
     hardwareProfile: {
       vmSize: computeSizeLookupOptions['${vm.ASNAME}-${VMSizeLookup[Environment]}']
     }
@@ -280,10 +282,10 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = [for (v
       computerName: VM[index].vmHostName
       adminUsername: contains(vm, 'AdminUser') ? vm.AdminUser : Global.vmAdminUserName
       adminPassword: vmAdminPassword
-      customData: contains(vm, 'customData') ? base64(replace(vm.customData, '{0}', '${networkId}.')) : json('null')
-      secrets: OSType[vm.OSType].OS == 'Windows' ? secrets : json('null')
-      windowsConfiguration: OSType[vm.OSType].OS == 'Windows' ? VM[index].windowsConfiguration : json('null')
-      linuxConfiguration: OSType[vm.OSType].OS != 'Windows' ? VM[index].linuxConfiguration : json('null')
+      customData: contains(vm, 'customData') ? base64(replace(vm.customData, '{0}', '${networkId}.')) : null
+      secrets: OSType[vm.OSType].OS == 'Windows' ? secrets : null
+      windowsConfiguration: OSType[vm.OSType].OS == 'Windows' ? VM[index].windowsConfiguration : null
+      linuxConfiguration: OSType[vm.OSType].OS != 'Windows' ? VM[index].linuxConfiguration : null
     }
     storageProfile: {
       imageReference: OSType[vm.OSType].imageReference
@@ -296,13 +298,14 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = [for (v
           storageAccountType: storageAccountType
         }
       }
-      dataDisks: reference(resourceId('Microsoft.Resources/deployments', 'dp${Deployment}-VM-diskLookup${vm.Name}'), '2018-05-01').outputs.DATADisks.value
+      dataDisks: DISKLOOKUP[index].outputs.DATADisks
     }
     networkProfile: {
       networkInterfaces: [for (nic, index) in vm.NICs: {
-        id: resourceId('Microsoft.Network/networkInterfaces', '${Deployment}${(contains(nic, 'LB') ? '-niclb' : (contains(nic, 'PLB') ? '-nicplb' : (contains(nic, 'SLB') ? '-nicslb' : '-nic')))}${((index == 0) ? '' : (index + 1))}${vm.Name}')
+        id: resourceId('Microsoft.Network/networkInterfaces', '${Deployment}${contains(nic,'LB') ? '-niclb' : contains(nic,'PLB') ? '-nicplb' : contains(nic,'SLB') ? '-nicslb' : '-nic'}${index == 0 ? '' : index + 1}${vm.Name}')
         properties: {
           primary: contains(nic, 'Primary')
+          deleteOption: 'Delete'
         }
       }]
     }
@@ -314,7 +317,6 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = [for (v
     }
   }
   dependsOn: [
-    DISKLOOKUP
     AS
     VMNIC
   ]
@@ -506,7 +508,7 @@ resource UAIGlobal 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30'
   scope: resourceGroup(RGName)
 }
 
-resource VMDSC2 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for (vm, index) in AppServers: if (VM[index].match && VM[index].Extensions.DSC2 == 1 && vm.Role != 'PULL' && (DeploymentName == 'ConfigSQLAO' || DeploymentName == 'CreateADPDC' || DeploymentName == 'CreateADBDC')) {
+resource VMDSC2 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for (vm, index) in AppServers: if (VM[index].match && (contains(VM[index].Extensions,'DSC2') && VM[index].Extensions.DSC2 == 1) && vm.Role != 'PULL' && (DeploymentName == 'ConfigSQLAO' || DeploymentName == 'CreateADPDC' || DeploymentName == 'CreateADBDC')) {
   name: 'Microsoft.Powershell.DSC2'
   parent: virtualMachine[index]
   location: resourceGroup().location
@@ -632,8 +634,8 @@ resource VMDiags 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = [fo
     typeHandlerVersion: ((OSType[vm.OSType].OS == 'Windows') ? '1.9' : '3.0')
     autoUpgradeMinorVersion: true
     settings: {
-      WadCfg: ((OSType[vm.OSType].OS == 'Windows') ? WadCfg : json('null'))
-      ladCfg: ((OSType[vm.OSType].OS == 'Windows') ? json('null') : ladCfg)
+      WadCfg: ((OSType[vm.OSType].OS == 'Windows') ? WadCfg : null)
+      ladCfg: ((OSType[vm.OSType].OS == 'Windows') ? null : ladCfg)
       StorageAccount: saaccountiddiag
       StorageType: 'TableAndBlob'
     }

@@ -59,10 +59,11 @@
         "DNSPrivateZone": 0,
         "LinkPrivateDns": 0,
         "PrivateLink": 1,
-        "BastionHost": 0,
+        "BastionHost": 1,
         "RT": 0,
         "FW": 0,
         "VNGW": 0,
+        "NATGW": 1,
         "ERGW": 0,
         "ADPrimary": 0,
         "ADSecondary": 0,
@@ -347,6 +348,7 @@
             "prefix": "80/28",
             "NSG": 1,
             "Route": 0, // 1
+            "NGW": 1,
             "FlowLogEnabled": true,
             "FlowAnalyticsEnabled": true
           },
@@ -372,6 +374,18 @@
             "Route": 1,
             "FlowLogEnabled": true,
             "FlowAnalyticsEnabled": true
+          }
+        ],
+        "BastionInfo": {
+          "name": "HST01",
+          "PublicIP": "Static",
+          "Zone": true
+        },
+        "NatGWInfo": [
+          {
+            "Name": "NAT01",
+            "PublicIP": "Static",
+            "Zone": true
           }
         ],
         "saInfo": [
@@ -481,7 +495,7 @@
               "NICs": [
                 {
                   "Subnet": "BE01",
-                  "SLB2": "CLS01",
+                  "SLB": "CLS01",
                   "FastNic": 1,
                   "Primary": 1,
                   "StaticIP": "91"
@@ -519,7 +533,7 @@
               "NICs": [
                 {
                   "Subnet": "BE01",
-                  "SLB2": "CLS01",
+                  "SLB": "CLS01",
                   "FastNic": 1,
                   "Primary": 1,
                   "StaticIP": "89"
@@ -550,7 +564,7 @@
           {
             "Name": "CLS01",
             "ASName": "CLS01",
-            "Sku": "Basic",
+            "Sku": "Standard",
             "Type": "Private",
             "BackEnd": ["CLS01"],
             "FrontEnd": [

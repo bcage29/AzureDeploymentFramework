@@ -43,7 +43,9 @@ Function global:Start-AzDeploy
         # When deploying VM's, this is a subset of AppServers e.g. AppServers, SQLServers, ADPrimary
         [string] $DeploymentName = ($Prefix + '-' + $App + '-' + $Deployment + '-' + (Get-ChildItem $TemplateFile).BaseName),
 
-        [Switch] $SubscriptionDeploy,
+        [switch] $SubscriptionDeploy,
+
+        [switch] $FullUpload,
 
         [switch] $WhatIf,
 
@@ -113,19 +115,19 @@ Function global:Start-AzDeploy
     Write-Verbose "Storage Account is: [$StorageAccountName] and container is: [$StorageContainerName]" -Verbose
 
     # Do not create the Resource Groups in this file anymore, only validate that it exists.
-    # if (-not $Subscription)
-    # {
-    #     if ( -not (Get-AzResourceGroup -Name $ResourceGroupName -Verbose -ErrorAction SilentlyContinue))
-    #     {
-    #         $globalstorage = Get-AzStorageAccount | Where-Object StorageAccountName -Match g1saglobal | ForEach-Object ResourceGroupName
-    #         Write-Output "`n"
-    #         $Message = "[$ResourceGroupName] does not exist, switch Subscription OR SubscriptionDeploy, currently using: [$globalstorage]!!!"
-    #         Write-Verbose -Message "$('*' * ($Message.length + 8))" -Verbose
-    #         Write-Error -Message $Message -EA continue
-    #         Write-Verbose -Message "$('*' * ($Message.length + 8))" -Verbose
-    #         break 
-    #     }
-    # }
+    if (-not $SubscriptionDeploy)
+    {
+        if ( -not (Get-AzResourceGroup -Name $ResourceGroupName -Verbose -ErrorAction SilentlyContinue))
+        {
+            $globalstorage = Get-AzStorageAccount | Where-Object StorageAccountName -Match g1saglobal | ForEach-Object ResourceGroupName
+            Write-Output "`n"
+            $Message = "[$ResourceGroupName] does not exist, switch Subscription OR SubscriptionDeploy, currently using: [$globalstorage]!!!"
+            Write-Verbose -Message "$('*' * ($Message.length + 8))" -Verbose
+            Write-Error -Message $Message -EA continue
+            Write-Verbose -Message "$('*' * ($Message.length + 8))" -Verbose
+            break 
+        }
+    }
 
     $SASParams = @{
         Container  = $StorageContainerName 
@@ -249,9 +251,11 @@ Function global:Start-AzDeploy
     }
 
     $Common = @{
-        Name     = $DeploymentName
-        Location = $ResourceGroupLocation
-        Verbose  = $true
+        Name          = $DeploymentName
+        Location      = $ResourceGroupLocation
+        Verbose       = $true
+        ErrorAction   = 'SilentlyContinue'
+        ErrorVariable = 'e'
     }
 
     switch ($Deployment)
@@ -268,7 +272,7 @@ Function global:Start-AzDeploy
             }
             else 
             {
-                New-AzTenantDeployment @Common @TemplateArgs @OptionalParameters
+                $global:r = New-AzTenantDeployment @Common @TemplateArgs @OptionalParameters
             }
         }
 
@@ -284,7 +288,7 @@ Function global:Start-AzDeploy
             }
             else 
             {
-                New-AzManagementGroupDeployment @Common @TemplateArgs @OptionalParameters
+                $global:r = New-AzManagementGroupDeployment @Common @TemplateArgs @OptionalParameters
             }
         }
 
@@ -301,7 +305,7 @@ Function global:Start-AzDeploy
                 }
                 else 
                 {
-                    New-AzSubscriptionDeployment @Common @TemplateArgs @OptionalParameters
+                    $global:r = New-AzSubscriptionDeployment @Common @TemplateArgs @OptionalParameters
                 }
             }
             # ResourceGroup
@@ -317,11 +321,15 @@ Function global:Start-AzDeploy
                 }
                 else 
                 {
-                    New-AzResourceGroupDeployment @Common @TemplateArgs @OptionalParameters
+                    $global:r = New-AzResourceGroupDeployment @Common @TemplateArgs @OptionalParameters
                 }
             }
         }
     }
+
+    $Properties = 'ResourceGroupName','DeploymentName','ProvisioningState','Timestamp','Mode','CorrelationId'
+    $r | Select-Object -Property $Properties | Format-Table -AutoSize
+    $e
 } # Start-AzDeploy
 
 New-Alias -Name AzDeploy -Value Start-AzDeploy -Force -Scope global
