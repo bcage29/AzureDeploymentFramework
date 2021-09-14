@@ -217,25 +217,25 @@ resource VMSS 'Microsoft.Compute/virtualMachineScaleSets@2021-04-01' = {
       }
       extensionProfile: {
         extensions: [
-          {
-            name: 'joindomain'
-            properties: {
-              publisher: 'Microsoft.Compute'
-              type: 'JsonADDomainExtension'
-              typeHandlerVersion: '1.3'
-              autoUpgradeMinorVersion: true
-              settings: {
-                Name: Global.ADDomainName
-                OUPath:contains(AppServer, 'OUPath') ? AppServer.OUPath : ''
-                User: '${Global.vmAdminUserName}@${Global.ADDomainName}'
-                Restart: 'true'
-                Options: 3
-              }
-              protectedSettings: {
-                Password: vmAdminPassword
-              }
-            }
-          }
+          // {
+          //   name: 'joindomain'
+          //   properties: {
+          //     publisher: 'Microsoft.Compute'
+          //     type: 'JsonADDomainExtension'
+          //     typeHandlerVersion: '1.3'
+          //     autoUpgradeMinorVersion: true
+          //     settings: {
+          //       Name: Global.ADDomainName
+          //       OUPath:contains(AppServer, 'OUPath') ? AppServer.OUPath : ''
+          //       User: '${Global.vmAdminUserName}@${Global.ADDomainName}'
+          //       Restart: 'true'
+          //       Options: 3
+          //     }
+          //     protectedSettings: {
+          //       Password: vmAdminPassword
+          //     }
+          //   }
+          // }
           {
             name: 'VMDiagnostics'
             properties: {

@@ -115,7 +115,7 @@
         "Scripts": 1,
         "MSI": 0,
         "CertMgmt": 0,
-        "DomainJoin": 1,
+        "DomainJoin": 0,
         "AADLogin": 0,
         "WindowsOpenSSH": 0,
         "Antimalware": 0,  //
@@ -654,7 +654,7 @@
             "Role": "API",
             "ASNAME": "API",
             "DDRole": "64GBSS",
-            "OSType": "Server2019SSIMG",
+            "OSType": "Server2019SS",
             "Subnet": "MT02", // mid tier subnet 02 250 addresses
             "NATName": "RDP",
             "zones": [

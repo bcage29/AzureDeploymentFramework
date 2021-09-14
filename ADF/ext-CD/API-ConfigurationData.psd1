@@ -90,7 +90,7 @@
             )
 
             # Blob copy with Managed Identity - Oauth2
-            AZCOPYDSCDirPresentSource   = @(
+            AZCOPYDSCDirPresentSource2   = @(
 
                 # @{
                 #     SourcePathBlobURI = 'https://{0}.blob.core.windows.net/source/PSModules/'
@@ -158,7 +158,7 @@
                 # }
             )
 
-            SoftwarePackagePresent      = @(
+            SoftwarePackagePresent2      = @(
 
                 # @{
                     # Name      = 'Microsoft Visual Studio Code'
@@ -225,7 +225,7 @@
             )
 
             # Blob copy with Managed Identity - Oauth2
-            AppReleaseDSCAppPresent     = @(
+            AppReleaseDSCAppPresent2     = @(
 
                 # @{
                 #     ComponentName     = 'DeployFirstApp'
@@ -247,21 +247,21 @@
             )
 
             # Add URL to hostfile for website testing
-            HostHeaders                 = @(
+            HostHeaders2                 = @(
                 @{HostName = '{0}-{1}-{2}-{3}-api01.haapp.net' ; ipAddress = '127.0.0.1' }
                 @{HostName = '{0}-{1}-{2}-{3}-api02.haapp.net' ; ipAddress = '127.0.0.1' }
                 @{HostName = '{0}-{1}-{2}-{3}-api03.haapp.net' ; ipAddress = '127.0.0.1' }
             )
 
-            WebAppPoolPresent           = @(
+            WebAppPoolPresent2           = @(
                 @{Name = '{0}api' ; Version = ''; enable32BitAppOnWin64 = $false }
             )
 
-            WebSiteAbsent               = @(
+            WebSiteAbsent2               = @(
                 @{Name = 'Default Web Site'; PhysicalPath = 'C:\inetpub\wwwroot' }
             )
 
-            WebSitePresent              = @(
+            WebSitePresent2              = @(
                 @{Name = '{0}api' ; ApplicationPool = '{0}api' ;
                     PhysicalPath = 'F:\WEB\LogHeadersAPI'; BindingPresent = @(
                         @{HostHeader = '{0}-{1}-{2}-{3}-api01.haapp.net' ; IPAddress = '*' ; Name = '{0}api' ; Port = 80 ; Protocol = 'http' },
