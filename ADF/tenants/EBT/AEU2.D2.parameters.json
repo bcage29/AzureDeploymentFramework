@@ -322,7 +322,7 @@
           }
         ],
         "DNSServers": [
-          "75",
+          "168.63.129.16",
           "76"
         ],
         "SubnetInfo": [
@@ -651,7 +651,7 @@
             "AutoScale": true,
             "PredictiveScale": "Enabled",
             "saname": "data",
-            "Role": "Pull",
+            "Role": "API",
             "ASNAME": "API",
             "DDRole": "64GBSS",
             "OSType": "Server2019SSIMG",
