@@ -111,8 +111,7 @@
         "VMInsights": 0, //
         "AdminCenter": 0,
         "BackupWindowsWorkloadSQL": 0,
-        "DSC": 1,
-        "DSC2": 1,
+        "DSC": 0,
         "Scripts": 1,
         "MSI": 0,
         "CertMgmt": 0,
@@ -254,7 +253,7 @@
         ],
         "SPInfo": [
           {
-            "Name": "ADO_{ADOProject}_{RGNAME}",
+            "Name": "ADO_{ADOProject}_{RGNAME}", // service principal for ADO
             "RBAC": [
               {
                 "Name": "ACRPush"
@@ -265,7 +264,7 @@
             ]
           },
           {
-            "Name": "GH_{GHProject}_{RGNAME}",
+            "Name": "GH_{GHProject}_{RGNAME}", // sevice principal for GH
             "RBAC": [
               {
                 "Name": "Contributor"
@@ -354,7 +353,7 @@
             "name": "snBE01",
             "prefix": "80/28",
             "NSG": 1,
-            "NGW": 1,
+            "NGW": 0,
             "Route": 0, // 1
             "FlowLogEnabled": true,
             "FlowAnalyticsEnabled": true
@@ -378,7 +377,7 @@
             "name": "snMT02",
             "prefix": "0/24",
             "NSG": 1,
-            "Route": 1,
+            "Route": 0,
             "FlowLogEnabled": true,
             "FlowAnalyticsEnabled": true
           }
@@ -395,42 +394,10 @@
             "Zone": true
           }
         ],
-        "saInfo": [
+        "saInfo": [ // storage accounts
           {
             "namesuffix": "diag",
             "skuName": "Standard_LRS",
-            "allNetworks": "Allow",
-            "logging": {
-              "r": 0,
-              "w": 0,
-              "d": 1
-            },
-            "blobVersioning": 1,
-            "changeFeed": 1,
-            "softDeletePolicy": {
-              "enabled": 1,
-              "days": 7
-            }
-          },
-          {
-            "namesuffix": "witness",
-            "skuName": "Standard_ZRS",
-            "allNetworks": "Allow",
-            "logging": {
-              "r": 0,
-              "w": 0,
-              "d": 1
-            },
-            "blobVersioning": 1,
-            "changeFeed": 1,
-            "softDeletePolicy": {
-              "enabled": 1,
-              "days": 7
-            }
-          },
-          {
-            "namesuffix": "sqlbackup",
-            "skuName": "Standard_ZRS",
             "allNetworks": "Allow",
             "logging": {
               "r": 0,
@@ -608,34 +575,115 @@
         },
         "LBInfo": [
           {
-            "Name": "CLS01",
-            "ASName": "CLS01",
+            "Name": "PLB01",
+            "Zone": 1,
+            "ASName": "PLB01",
             "Sku": "Standard",
-            "Type": "Private",
-            "BackEnd": ["CLS01"],
+            "Type": "Public",
+            "BackEnd": [
+              "PLB01"
+            ],
             "FrontEnd": [
               {
-                "SNName": "BE01",
-                "LBFEName": "AG01",
-                "LBFEIP": "92"
+                "LBFEName": "PLB01",
+                "PublicIP": "Static"
+                // "zones": [
+                //   "1"
+                // ]
+              }
+            ],
+            "_outboundRules": [ // underscore changes name and does not deploy //renaming a key has this effect
+              {
+                "LBFEName": "PLB01",
+                "allocatedOutboundPorts": 1024,
+                "idleTimeoutInMinutes": 4,
+                "enableTcpReset": true,
+                "protocol": "All"
+              }
+            ],
+            "NATPools": [
+              {
+                "Name": "RDP",
+                "frontendPortRangeStart": 3389,
+                "frontendPortRangeEnd": 4500,
+                "enableFloatingIP": false,
+                "backendPort": 3389,
+                "idleTimeoutInMinutes": 4,
+                "protocol": "Tcp",
+                "LBFEName": "PLB01"
               }
             ],
             "Probes": [
               {
-                "ProbeName": "AO-59999",
-                "LBBEProbePort": 59999
+                "ProbeName": "HTTP",
+                "LBBEProbePort": 80
+              },
+              {
+                "ProbeName": "HTTPS",
+                "LBBEProbePort": 443
               }
             ],
             "Services": [
               {
-                "RuleName": "AG01",
-                "LBFEName": "AG01",
-                "LBFEPort": 1433,
-                "LBBEPort": 1433,
-                "ProbeName": "AO-59999",
-                "DirectReturn": true
+                "LBFEName": "PLB01",
+                "LBBEName": "PLB01",
+                "RuleName": "API-HTTP",
+                "LBFEPort": 80,
+                "LBBEPort": 80,
+                "ProbeName": "HTTP",
+                "DirectReturn": false
+              },
+              {
+                "LBFEName": "PLB01",
+                "LBBEName": "PLB01",
+                "RuleName": "API-HTTPS",
+                "LBFEPort": 443,
+                "LBBEPort": 443,
+                "ProbeName": "HTTPS",
+                "DirectReturn": false
               }
             ]
+          }
+        ],
+        "AppServersVMSS": [
+          {
+            "Name": "API02",
+            "AutoScale": true,
+            "PredictiveScale": "Enabled",
+            "saname": "data",
+            "Role": "Pull",
+            "ASNAME": "API",
+            "DDRole": "64GBSS",
+            "OSType": "Server2019SSIMG",
+            "Subnet": "MT02", // mid tier subnet 02 250 addresses
+            "NATName": "RDP",
+            "zones": [
+              "1",
+              "2",
+              "3"
+            ],
+            "LBBE": [
+              "PLB01"
+            ],
+            "_WAFBE": [
+              "API02"
+            ],
+            "AutoScalecapacity": {
+              "minimum": "3",
+              "maximum": "9",
+              "default": "3"
+            },
+            "Health": {
+              "protocol": "https",
+              "port": "443",
+              "requestPath": "/api/headers"
+            },
+            "IsPrimary": true,
+            "durabilityLevel": "Bronze",
+            "placementProperties": {
+              "OSType": "Server2016SS",
+              "NodeKind": "API01"
+            }
           }
         ]
       }
