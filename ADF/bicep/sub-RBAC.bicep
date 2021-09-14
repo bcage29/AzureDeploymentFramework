@@ -90,7 +90,7 @@ module UAI 'sub-RBAC-ALL.bicep' = [for (uai, index) in uaiinfo: if (Stage.UAI ==
     }
 }]
 
-module ROLES 'sub-RBAC-ALL.bicep' = [for (role, index) in rolesInfo: if (Stage.RBAC == 1) {
+module RBAC 'sub-RBAC-ALL.bicep' = [for (role, index) in rolesInfo: if (Stage.RBAC == 1) {
     name: 'dp-rbac-role-${Prefix}-${length(rolesInfo) == 0 ? 'na' : role.name}'
     params: {
         Deployment: deployment
