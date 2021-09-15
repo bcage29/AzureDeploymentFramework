@@ -371,7 +371,7 @@ resource VMSS 'Microsoft.Compute/virtualMachineScaleSets@2021-04-01' = {
             name: 'Microsoft.Powershell.DSC'
             properties: {
               provisionAfterExtensions: [
-                'joindomain'
+                // 'joindomain'
               ]
               publisher: 'Microsoft.Powershell'
               type: 'DSC'
