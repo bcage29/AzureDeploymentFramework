@@ -321,10 +321,7 @@
             ]
           }
         ],
-        "DNSServers": [
-          "168.63.129.16",
-          "76"
-        ],
+        "DNSServers": [],
         "SubnetInfo": [
           {
             "name": "snMT01",
