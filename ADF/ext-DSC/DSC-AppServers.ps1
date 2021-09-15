@@ -45,7 +45,7 @@ Configuration $Configuration
     Import-DscResource -ModuleName DSCR_AppxPackage
     
     # PowerShell Modules that you want deployed, comment out if not needed
-    Import-DscResource -ModuleName BRWAzure
+    # Import-DscResource -ModuleName BRWAzure
 
     <# Azure VM Metadata service
     $VMMeta = Invoke-RestMethod -Headers @{'Metadata' = 'true' } -Uri http://169.254.169.254/metadata/instance?api-version=2019-02-01 -Method get
@@ -891,6 +891,8 @@ Configuration $Configuration
 
 # used for troubleshooting
 # F5 loads the configuration and starts the push
+
+$NotAA = $True
 
 #region The following is used for manually running the script, breaks when running as system
 if ((whoami) -notmatch 'system' -and $NotAA)
