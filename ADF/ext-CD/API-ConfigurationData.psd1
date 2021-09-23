@@ -36,7 +36,7 @@
 
             DirectoryPresent            = @(
                 'F:\Source\InstallLogs', 'F:\Repos', 'c:\program files\powershell\7', 
-                'F:\WEB\LogHeadersAPI', 'F:\Build'
+                'F:\API\EchoBot', 'F:\Build'
             )
 
             EnvironmentPathPresent2      = @(
@@ -48,7 +48,7 @@
                 'F:\Source\Tools\.vs-kubernetes\tools\draft\windows-amd64'
             )
 
-            RegistryKeyPresent2          = @(
+            RegistryKeyPresent          = @(
                 @{ 
                     # enable developer mode to sideload appx packages, including winget
                     Key = 'HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock';
@@ -225,7 +225,7 @@
             )
 
             # Blob copy with Managed Identity - Oauth2
-            AppReleaseDSCAppPresent2     = @(
+            AppReleaseDSCAppPresent     = @(
 
                 # @{
                 #     ComponentName     = 'DeployFirstApp'
@@ -235,14 +235,23 @@
                 #     BuildFileName     = 'F:\Build\DeployFirstApp\ComponentBuild.json'
                 # }
 
+                # @{
+                #     ComponentName     = 'LogHeadersAPI'
+                #     SourcePathBlobURI = 'https://{0}.blob.core.windows.net/builds/'
+                #     DestinationPath   = 'F:\WEB\'
+                #     ValidateFileName  = 'CurrentBuild.txt'
+                #     BuildFileName     = 'F:\Build\LogHeadersAPI\ComponentBuild.json'
+                #     SleepTime         = '10'
+                #  }
+                
                 @{
-                    ComponentName     = 'LogHeadersAPI'
+                    ComponentName     = 'EchoBot'
                     SourcePathBlobURI = 'https://{0}.blob.core.windows.net/builds/'
-                    DestinationPath   = 'F:\WEB\'
+                    DestinationPath   = 'F:\API\'
                     ValidateFileName  = 'CurrentBuild.txt'
-                    BuildFileName     = 'F:\Build\LogHeadersAPI\ComponentBuild.json'
+                    BuildFileName     = 'F:\Build\EchoBot\componentBuild.json'
                     SleepTime         = '10'
-                }
+                 }
 
             )
 
