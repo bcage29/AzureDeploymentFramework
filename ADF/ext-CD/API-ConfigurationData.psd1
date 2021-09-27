@@ -90,11 +90,11 @@
             )
 
             # Blob copy with Managed Identity - Oauth2
-            AZCOPYDSCDirPresentSource2   = @(
+            AZCOPYDSCDirPresentSource   = @(
 
                 # @{
-                #     SourcePathBlobURI = 'https://{0}.blob.core.windows.net/source/PSModules/'
-                #     DestinationPath   = 'F:\Source\PSModules\'
+                #     sourcepathbloburi = 'https://{0}.blob.core.windows.net/source/psmodules/'
+                #     destinationpath   = 'f:\source\psmodules\'
                 # },
 
                 # @{
@@ -112,14 +112,14 @@
                 #     DestinationPath   = 'F:\Source\PSCore\'
                 # },
 
-                @{
-                    SourcePathBlobURI = 'https://{0}.blob.core.windows.net/source/DotNetCore/'
-                    DestinationPath   = 'F:\Source\DotNetCore\'
-                },
+                # @{
+                #    SourcePathBlobURI = 'https://{0}.blob.core.windows.net/source/DotNetCore/'
+                #    DestinationPath   = 'F:\Source\DotNetCore\'
+                # },
 
                 @{
-                    SourcePathBlobURI = 'https://{0}.blob.core.windows.net/source/ISAPI/'
-                    DestinationPath   = 'F:\Source\ISAPI\'
+                    SourcePathBlobURI = 'https://{0}.blob.core.windows.net/source/dotnet/'
+                    DestinationPath   = 'F:\Source\dotnet\'
                 }
             )
 
@@ -158,7 +158,7 @@
                 # }
             )
 
-            SoftwarePackagePresent2      = @(
+            SoftwarePackagePresent      = @(
 
                 # @{
                     # Name      = 'Microsoft Visual Studio Code'
@@ -202,10 +202,13 @@
                 #     Arguments = '/install /q /norestart'
                 # },
 
+                #6CD9E9ED-906D-4196-8DC3-F987D2F6615F - Microsoft Visual C++ 2019 X64 Minimum Runtime - 14.29.30133
+                #E699E009-1C3C-4E50-9B57-2B39F0954C7F - Microsoft Visual C++ 2019 X64 Additional Runtime - 14.29.30133
+
                 @{
-                    Name      = 'Microsoft ASP.NET Core 5.0.4 Shared Framework (x64)'
-                    Path      = 'F:\Source\DotNetCore\dotnet-hosting-5.0.4-win.exe'
-                    ProductId = ''
+                    Name      = 'Microsoft Visual C++ 2019 X64 Minimum Runtime - 14.29.30133'
+                    Path      = 'F:\Source\dotnet\VC_redist.x64.exe'
+                    ProductId = '{6CD9E9ED-906D-4196-8DC3-F987D2F6615F}'
                     Arguments = '/install /q /norestart'
                 }
 
@@ -252,7 +255,17 @@
                     BuildFileName     = 'F:\Build\EchoBot\componentBuild.json'
                     SleepTime         = '10'
                  }
+            )
 
+            NewServicePresent   = @(
+                @{
+                    Name        = 'EchoBotService'
+                    Path        = 'F:\API\EchoBot\EchoBot.exe'
+                    State       = 'Running'
+                    StartupType = 'Automatic'
+                    Description = 'Echo Bot Service'
+                    #Cred        = 'OCRService'
+                }
             )
 
             # Add URL to hostfile for website testing

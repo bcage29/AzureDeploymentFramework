@@ -76,7 +76,7 @@
         "VMAppLinux": 0,
         "VMSQL": 0,  //
         "VMFILE": 0,
-        "VMSS": 0,
+        "VMSS": 1,
         "WAFPOLICY": 0,
         "FRONTDOOR": 0,
         "WAF": 0,
