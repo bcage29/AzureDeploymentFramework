@@ -260,7 +260,7 @@
             NewServicePresent   = @(
                 @{
                     Name        = 'EchoBotService'
-                    Path        = 'F:\API\EchoBot\EchoBot.exe'
+                    Path        = 'F:\API\EchoBot\EchoBot.WindowsService.exe'
                     State       = 'Running'
                     StartupType = 'Automatic'
                     Description = 'Echo Bot Service'
