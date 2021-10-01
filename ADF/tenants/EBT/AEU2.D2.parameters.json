@@ -598,7 +598,7 @@
                 "protocol": "All"
               }
             ],
-            "NATPools": [
+            "_NATPools": [
               {
                 "Name": "RDP",
                 "frontendPortRangeStart": 3389,
@@ -611,32 +611,36 @@
               }
             ],
             "Probes": [
+              // {
+              //   "ProbeName": "HTTP",
+              //   "LBBEProbePort": 80
+              // },
+              // {
+              //   "ProbeName": "HTTPS",
+              //   "LBBEProbePort": 443
+              // },
               {
-                "ProbeName": "HTTP",
-                "LBBEProbePort": 80
-              },
-              {
-                "ProbeName": "HTTPS",
-                "LBBEProbePort": 443
+                "ProbeName": "CallSignaling",
+                "LBBEProbePort": 9442
               }
             ],
             "Services": [
+              // {
+              //   "LBFEName": "PLB01",
+              //   "LBBEName": "PLB01",
+              //   "RuleName": "API-HTTP",
+              //   "LBFEPort": 80,
+              //   "LBBEPort": 80,
+              //   "ProbeName": "HTTP",
+              //   "DirectReturn": false
+              // },
               {
                 "LBFEName": "PLB01",
                 "LBBEName": "PLB01",
-                "RuleName": "API-HTTP",
-                "LBFEPort": 80,
-                "LBBEPort": 80,
-                "ProbeName": "HTTP",
-                "DirectReturn": false
-              },
-              {
-                "LBFEName": "PLB01",
-                "LBBEName": "PLB01",
-                "RuleName": "API-HTTPS",
+                "RuleName": "API-CallSignaling",
                 "LBFEPort": 443,
-                "LBBEPort": 443,
-                "ProbeName": "HTTPS",
+                "LBBEPort": 9442,
+                "ProbeName": "CallSignaling",
                 "DirectReturn": false
               }
             ]
@@ -653,7 +657,7 @@
             "DDRole": "64GBSS",
             "OSType": "Server2019SS",
             "Subnet": "MT02", // mid tier subnet 02 250 addresses
-            "NATName": "RDP",
+            "_NATName": "RDP",
             "zones": [
               "1",
               "2",
@@ -666,14 +670,14 @@
               "API02"
             ],
             "AutoScalecapacity": {
-              "minimum": "3",
+              "minimum": "1",
               "maximum": "9",
-              "default": "3"
+              "default": "1"
             },
             "Health": {
-              "protocol": "https",
-              "port": "443",
-              "requestPath": "/api/headers"
+              "protocol": "http",
+              "port": "9442",
+              "requestPath": "/health"
             },
             "IsPrimary": true,
             "durabilityLevel": "Bronze",
