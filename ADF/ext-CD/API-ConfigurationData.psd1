@@ -48,6 +48,13 @@
                 'F:\Source\Tools\.vs-kubernetes\tools\draft\windows-amd64'
             )
 
+            EnvironmentVarPresentVMSS    = @(
+                @{
+                    Name  = 'VMSSInstanceId'
+                    Value = '{0}'
+                }
+            )
+
             RegistryKeyPresent          = @(
                 @{ 
                     # enable developer mode to sideload appx packages, including winget
@@ -267,6 +274,22 @@
                     #Cred        = 'OCRService'
                 }
             )
+
+            FWRules           = @(
+                @{
+                    Name      = "EchoBot"
+                    LocalPort =  ('8445','9442')
+                }
+            )
+
+            # Firewall $FWRule.Name
+            # {
+            #     Name      = $FWRule.Name
+            #     Action    = 'Allow'
+            #     Direction = 'Inbound'
+            #     LocalPort = $FWRule.LocalPort
+            #     Protocol  = 'TCP'
+            # }
 
             # Add URL to hostfile for website testing
             HostHeaders2                 = @(

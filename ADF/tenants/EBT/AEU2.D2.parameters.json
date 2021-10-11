@@ -598,42 +598,35 @@
                 "protocol": "All"
               }
             ],
-            "_NATPools": [
+            "NATPools": [
               {
-                "Name": "RDP",
-                "frontendPortRangeStart": 3389,
-                "frontendPortRangeEnd": 4500,
+                "Name": "MediaControlPlane",
+                "frontendPortRangeStart": 6000,
+                "frontendPortRangeEnd": 6500,
                 "enableFloatingIP": false,
-                "backendPort": 3389,
+                "backendPort": 6000,
+                "idleTimeoutInMinutes": 4,
+                "protocol": "Tcp",
+                "LBFEName": "PLB01"
+              },
+              {
+                "Name": "BotNotification",
+                "frontendPortRangeStart": 7000,
+                "frontendPortRangeEnd": 7500,
+                "enableFloatingIP": false,
+                "backendPort": 7000,
                 "idleTimeoutInMinutes": 4,
                 "protocol": "Tcp",
                 "LBFEName": "PLB01"
               }
             ],
             "Probes": [
-              // {
-              //   "ProbeName": "HTTP",
-              //   "LBBEProbePort": 80
-              // },
-              // {
-              //   "ProbeName": "HTTPS",
-              //   "LBBEProbePort": 443
-              // },
               {
                 "ProbeName": "CallSignaling",
                 "LBBEProbePort": 9442
               }
             ],
             "Services": [
-              // {
-              //   "LBFEName": "PLB01",
-              //   "LBBEName": "PLB01",
-              //   "RuleName": "API-HTTP",
-              //   "LBFEPort": 80,
-              //   "LBBEPort": 80,
-              //   "ProbeName": "HTTP",
-              //   "DirectReturn": false
-              // },
               {
                 "LBFEName": "PLB01",
                 "LBBEName": "PLB01",
@@ -657,7 +650,7 @@
             "DDRole": "64GBSS",
             "OSType": "Server2019SS",
             "Subnet": "MT02", // mid tier subnet 02 250 addresses
-            "_NATName": "RDP",
+            "NATName": "MediaControlPlane",
             "zones": [
               "1",
               "2",
@@ -666,16 +659,24 @@
             "LBBE": [
               "PLB01"
             ],
+            "NICs": [
+              {
+                "Subnet": "FE01",
+                "Primary": 1,
+                "FastNic": 1,
+                "PublicIP": 1
+              }
+            ],
             "_WAFBE": [
               "API02"
             ],
             "AutoScalecapacity": {
               "minimum": "1",
               "maximum": "9",
-              "default": "1"
+              "default": "3"
             },
             "Health": {
-              "protocol": "http",
+              "protocol": "https",
               "port": "9442",
               "requestPath": "/health"
             },
