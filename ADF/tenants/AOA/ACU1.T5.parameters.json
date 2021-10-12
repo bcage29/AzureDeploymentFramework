@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "Prefix": {
@@ -431,10 +431,16 @@
               {
                 "name": "locust",
                 "quota": 5120
+              },
+              {
+                "name": "function",
+                "quota": 5120
               }
             ],
             "containers": [
-              "locust"
+              {
+                "name": "locust"
+              }
             ]
           }
         ],
@@ -484,9 +490,9 @@
             "dnsName": "API",
             "apimSku": "Developer",
             "snName": "snBE01",
-            "virtualNetworkType": "Internal",
+            "virtualNetworkType": "External",
             "certName": "PSTHING-WildCard",
-            "frontDoor": "01"
+            "_frontDoor": "01"
           }
         ],
         "AzSQLInfo": [
@@ -612,7 +618,7 @@
             "Name": "WPS01",
             "kind": "app",
             "AppSVCPlan": "WPS01",
-            "saname": "wps01"
+            "saname": "diag"
           }
         ],
         "WebSiteContainerInfo": [
@@ -630,17 +636,17 @@
             "Name": "DIS01",
             "kind": "functionapp",
             "AppSVCPlan": "ASP01",
-            "saname": "dis01",
+            "saname": "data",
             "runtime": "dotnet",
             "subnet": "snMT01",
             "preWarmedCount": 1,
             "deploy": 0
           },
           {
-            "Name": "PS01",
+            "Name": "PS02",
             "kind": "functionapp",
             "AppSVCPlan": "ASP01",
-            "saname": "dis01",
+            "saname": "data",
             "runtime": "powershell",
             "subnet": "snMT01",
             "preWarmedCount": 1,
@@ -888,8 +894,37 @@
         ],
         "frontDoorInfo": [
           {
-            "name": "03",
+            "name": "01",
             "_afdverify": "AOA",
+            "rulesEngineDetached": 0,
+            "rules": [
+              {
+                "name": "Rule1",
+                "priority": 0,
+                "action": {
+                  "requestHeaderActions": [],
+                  "responseHeaderActions": [
+                    {
+                      "headerActionType": "Append",
+                      "headerName": "Content-Security-Policy",
+                      "value": "\"script-src 'self' https://apiphany.portal.azure-api.net.\""
+                    }
+                  ]
+                },
+                "matchConditions": [
+                  {
+                    "rulesEngineMatchValue": [
+                      "AQ"
+                    ],
+                    "negateCondition": false,
+                    "rulesEngineMatchVariable": "RemoteAddr",
+                    "rulesEngineOperator": "GeoMatch",
+                    "transforms": []
+                  }
+                ],
+                "matchProcessingBehavior": "Continue"
+              }
+            ],
             "services": [
               {
                 "Name": "APIM03", // acu1-BRW-AOA-s1-afd 01 - apim01 .psthing.com
@@ -905,7 +940,8 @@
                 "EnableSSL": 1, // _ to rename to disable after initial deployment
                 "patternsToMatch": [
                   "/*"
-                ]
+                ],
+                "rulesEngine": "Rule1"
               },
               {
                 "Name": "APIM03-Developer",
@@ -1032,6 +1068,16 @@
                 "idleTimeoutInMinutes": 4,
                 "protocol": "Tcp",
                 "LBFEName": "PLB01"
+              },
+              {
+                "Name": "RTC",
+                "frontendPortRangeStart": 6000,
+                "frontendPortRangeEnd": 6500,
+                "enableFloatingIP": false,
+                "backendPort": 6000,
+                "idleTimeoutInMinutes": 4,
+                "protocol": "Tcp",
+                "LBFEName": "PLB01"
               }
             ],
             "Probes": [
@@ -1138,7 +1184,11 @@
             "DDRole": "64GBSS",
             "OSType": "Server2019SSIMG",
             "Subnet": "MT02",
-            "_NATName": "RDP",
+            "LB": "PLB01",
+            "NATName": [
+              "RDP",
+              "RTC"
+            ],
             "zones": [
               "1",
               "2",
@@ -1155,7 +1205,7 @@
                 "Subnet": "FE01",
                 "Primary": 1,
                 "FastNic": 1,
-                "PublicIP": 1
+                "PublicIP": 0
               }
             ],
             "AutoScalecapacity": {
