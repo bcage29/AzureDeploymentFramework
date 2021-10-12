@@ -50,7 +50,13 @@
 
             EnvironmentVarPresentVMSS    = @(
                 @{
-                    Name  = 'VMSSInstanceId'
+                    Name  = 'MediaControlPlanePort'
+                    BackendPortMatch = '6000'
+                    Value = '{0}'
+                },
+                @{
+                    Name  = 'BotNotificationPort'
+                    BackendPortMatch = '7000'
                     Value = '{0}'
                 }
             )
@@ -127,6 +133,11 @@
                 @{
                     SourcePathBlobURI = 'https://{0}.blob.core.windows.net/source/dotnet/'
                     DestinationPath   = 'F:\Source\dotnet\'
+                },
+
+                @{
+                    SourcePathBlobURI = 'https://{0}.blob.core.windows.net/source/VisualStudio/'
+                    DestinationPath   = 'F:\Source\VisualStudio\'
                 }
             )
 
@@ -220,6 +231,21 @@
                 }
 
                 # @{
+                #     Name      = 'Visual Studio Enterprise 2019'
+                #     Path      = 'F:\Source\dotnet\vs_enterprise__337181613.1633999746.exe'
+                #     ProductId = ''
+                #     Arguments = '/install /q /norestart'
+                # }
+                
+                # Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall
+                @{  
+                    Name      = 'Visual Studio Enterprise 2019'
+                    Path      = 'F:\Source\VisualStudio\vs_enterprise__337181613.1633999746.exe'
+                    ProductId = ''
+                    Arguments = '--installPath F:\VisualStudio\2019\Enterprise --addProductLang en-US  --includeRecommended --quiet --wait --norestart'
+                }
+
+                # @{
                 #     Name      = 'IIS URL Rewrite Module 2'
                 #     Path      = 'F:\Source\ISAPI\rewrite_amd64_en-US.msi'
                 #     ProductId = '{9BCA2118-F753-4A1E-BCF3-5A820729965C}'
@@ -279,6 +305,21 @@
                 @{
                     Name      = "EchoBot"
                     LocalPort =  ('8445','9442')
+                }
+            )
+
+            CertificatePortBinding = @(
+                @{
+                    Name     = "MediaControlPlane"
+                    Port     = '8445'
+                    AppId    = '{7c64d8a0-4cbb-42b6-85a8-de0e00f6a9c6}'
+                    CertHash = '8b84dcdb49f5e408fe1a65c87c89acc29523793e'
+                },
+                @{
+                    Name     = "BotNotification"
+                    Port     = '9442'
+                    AppId    = '{7c64d8a0-4cbb-42b6-85a8-de0e00f6a9c6}'
+                    CertHash = '8b84dcdb49f5e408fe1a65c87c89acc29523793e'
                 }
             )
 

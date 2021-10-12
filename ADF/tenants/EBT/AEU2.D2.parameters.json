@@ -650,7 +650,11 @@
             "DDRole": "64GBSS",
             "OSType": "Server2019SS",
             "Subnet": "MT02", // mid tier subnet 02 250 addresses
-            "NATName": "MediaControlPlane",
+            "LB": "PLB01",
+            "NATName": [
+              "BotNotification",
+              "MediaControlPlane"
+            ],
             "zones": [
               "1",
               "2",
@@ -671,7 +675,7 @@
               "API02"
             ],
             "AutoScalecapacity": {
-              "minimum": "1",
+              "minimum": "2",
               "maximum": "9",
               "default": "3"
             },

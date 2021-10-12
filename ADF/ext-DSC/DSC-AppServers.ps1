@@ -177,6 +177,45 @@ Configuration $Configuration
         #     UseSuffixWhenRegistering       = $true
         # }
 
+        # @{
+        #     Name     = "MediaControlPlane"
+        #     Port     = '8445'
+        #     AppId    = '{7c64d8a0-4cbb-42b6-85a8-de0e00f6a9c6}'
+        #     CertHash = '8b84dcdb49f5e408fe1a65c87c89acc29523793e'
+        # },
+
+        foreach ($certBinding in $Node.CertificatePortBinding)
+        {
+            script ('SetSSLCert_' + $certBinding.Name)
+            {
+                GetScript            = {
+                    $certBinding = $using:certBinding
+                    $result = netsh http show sslcert ipport=0.0.0.0:$($certBinding.Port)
+                    @{
+                        name  = $certBinding.Name
+                        value = $result
+                    }
+                }#Get
+                SetScript            = {
+                    $certBinding = $using:certBinding
+                    netsh http add sslcert ipport=0.0.0.0:$($certBinding.Port) certhash=$($certBinding.CertHash) appid=$($certBinding.AppId)
+                }#Set 
+                TestScript           = {
+                    $certBinding = $using:certBinding
+                    $cert = netsh http show sslcert ipport=0.0.0.0:$($certBinding.Port)
+                    $result = $cert | Where { $_ -match "(Application ID.+: )(?<AppId>{.+})" }
+                    if ($Matches.AppId -eq $certBinding.AppId)
+                    {
+                        $true
+                    }
+                    else
+                    {
+                        $false
+                    }
+                }#Test
+            }
+        }
+
         #-------------------------------------------------------------------
         xTimeZone timezone
         { 
@@ -574,7 +613,7 @@ Configuration $Configuration
             Environment $Name
             {
                 Name  = $EnvironmentVar.Name
-                Value = $EnvironmentVar.Value -f ($LB.inboundRules | where backendPort -eq 6000 | ForEach frontendPort)
+                Value = $EnvironmentVar.Value -f ($LB.inboundRules | where backendPort -eq $EnvironmentVar.BackendPortMatch | ForEach frontendPort)
             }
             $dependsonEnvironmentPathVMSS += @("[Environment]$Name")
         }
