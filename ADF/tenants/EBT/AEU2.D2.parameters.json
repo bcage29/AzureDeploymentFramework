@@ -604,7 +604,7 @@
                 "frontendPortRangeStart": 6000,
                 "frontendPortRangeEnd": 6500,
                 "enableFloatingIP": false,
-                "backendPort": 6000,
+                "backendPort": 8445,
                 "idleTimeoutInMinutes": 4,
                 "protocol": "Tcp",
                 "LBFEName": "PLB01"
@@ -614,7 +614,7 @@
                 "frontendPortRangeStart": 7000,
                 "frontendPortRangeEnd": 7500,
                 "enableFloatingIP": false,
-                "backendPort": 7000,
+                "backendPort": 9441,
                 "idleTimeoutInMinutes": 4,
                 "protocol": "Tcp",
                 "LBFEName": "PLB01"

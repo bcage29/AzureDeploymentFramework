@@ -50,13 +50,13 @@
 
             EnvironmentVarPresentVMSS    = @(
                 @{
-                    Name  = 'MediaControlPlanePort'
-                    BackendPortMatch = '6000'
+                    Name  = 'AzureSettings:MediaControlPlanePort'
+                    BackendPortMatch = '8445'
                     Value = '{0}'
                 },
                 @{
-                    Name  = 'BotNotificationPort'
-                    BackendPortMatch = '7000'
+                    Name  = 'AzureSettings:BotNotificationPort'
+                    BackendPortMatch = '9441'
                     Value = '{0}'
                 }
             )
@@ -185,12 +185,12 @@
                 #     Arguments = '/silent /norestart'
                 # },
 
-                # @{
-                #     Name      = 'Git version 2.23.0.windows.1'
-                #     Path      = 'F:\Source\GIT\Git-2.23.0-64-bit.exe'
-                #     ProductId = ''
-                #     Arguments = '/VERYSILENT'
-                # },
+                @{
+                    Name      = 'Git'
+                    Path      = 'F:\Source\GIT\Git-2.33.0.2-64-bit.exe'
+                    ProductId = ''
+                    Arguments = '/VERYSILENT'
+                },
 
                 # @{
                 #     Name      = 'PowerShell 7-x64'
@@ -230,19 +230,12 @@
                     Arguments = '/install /q /norestart'
                 }
 
-                # @{
-                #     Name      = 'Visual Studio Enterprise 2019'
-                #     Path      = 'F:\Source\dotnet\vs_enterprise__337181613.1633999746.exe'
-                #     ProductId = ''
-                #     Arguments = '/install /q /norestart'
-                # }
-                
                 # Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall
                 @{  
                     Name      = 'Visual Studio Enterprise 2019'
                     Path      = 'F:\Source\VisualStudio\vs_enterprise__337181613.1633999746.exe'
                     ProductId = ''
-                    Arguments = '--installPath F:\VisualStudio\2019\Enterprise --addProductLang en-US  --includeRecommended --quiet --wait --norestart'
+                    Arguments = '--installPath F:\VisualStudio\2019\Enterprise --addProductLang en-US  --includeRecommended --config "F:\Source\VisualStudio\.vsconfig" --quiet --wait --norestart'
                 }
 
                 # @{
@@ -262,24 +255,6 @@
 
             # Blob copy with Managed Identity - Oauth2
             AppReleaseDSCAppPresent     = @(
-
-                # @{
-                #     ComponentName     = 'DeployFirstApp'
-                #     SourcePathBlobURI = 'https://{0}.blob.core.windows.net/builds/'
-                #     DestinationPath   = 'F:\WEB\'
-                #     ValidateFileName  = 'CurrentBuild.txt'
-                #     BuildFileName     = 'F:\Build\DeployFirstApp\ComponentBuild.json'
-                # }
-
-                # @{
-                #     ComponentName     = 'LogHeadersAPI'
-                #     SourcePathBlobURI = 'https://{0}.blob.core.windows.net/builds/'
-                #     DestinationPath   = 'F:\WEB\'
-                #     ValidateFileName  = 'CurrentBuild.txt'
-                #     BuildFileName     = 'F:\Build\LogHeadersAPI\ComponentBuild.json'
-                #     SleepTime         = '10'
-                #  }
-                
                 @{
                     ComponentName     = 'EchoBot'
                     SourcePathBlobURI = 'https://{0}.blob.core.windows.net/builds/'
@@ -316,8 +291,14 @@
                     CertHash = '8b84dcdb49f5e408fe1a65c87c89acc29523793e'
                 },
                 @{
-                    Name     = "BotNotification"
+                    Name     = "BotCalling"
                     Port     = '9442'
+                    AppId    = '{7c64d8a0-4cbb-42b6-85a8-de0e00f6a9c6}'
+                    CertHash = '8b84dcdb49f5e408fe1a65c87c89acc29523793e'
+                },
+                @{
+                    Name     = "BotNotification"
+                    Port     = '9441'
                     AppId    = '{7c64d8a0-4cbb-42b6-85a8-de0e00f6a9c6}'
                     CertHash = '8b84dcdb49f5e408fe1a65c87c89acc29523793e'
                 }
