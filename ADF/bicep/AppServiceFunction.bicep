@@ -48,8 +48,6 @@ param sshPublic string
 var Deployment = '${Prefix}-${Global.OrgName}-${Global.Appname}-${Environment}${DeploymentID}'
 var DeploymentURI = toLower('${Prefix}${Global.OrgName}${Global.Appname}${Environment}${DeploymentID}')
 
-var SADiagName = '${DeploymentURI}sadiag'
-
 var OMSworkspaceName = '${DeploymentURI}LogAnalytics'
 var OMSworkspaceID = resourceId('Microsoft.OperationalInsights/workspaces/', OMSworkspaceName)
 
@@ -58,108 +56,35 @@ var AppInsightsID = resourceId('Microsoft.insights/components/', AppInsightsName
 
 // FunctionInfo
 var WebSiteInfo = (contains(DeploymentInfo, 'FunctionInfo') ? DeploymentInfo.FunctionInfo : [])
-  
+
 var WSInfo = [for (ws, index) in WebSiteInfo: {
   match: ((Global.CN == '.') || contains(Global.CN, ws.name))
   saName: toLower('${DeploymentURI}sa${ws.saname}')
 }]
 
-var MSILookup = {
-  SQL: 'Cluster'
-  UTL: 'DefaultKeyVault'
-  FIL: 'Cluster'
-  OCR: 'Storage'
-  PS01: 'VMOperator'
+// merge appConfig, move this to the websiteInfo as a property to pass in these from the param file
+var myAppConfig = {
+  abc: 'value'
+  def: 'value'
 }
 
-// merge appConfig
-var myAppConfig = [
-  { 
-    name: 'abc'
-    value: 'value'
-  }
-  { 
-    name: 'def' 
-    value: 'value'
-  }
-]
-
-resource SADiag 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
-  name: SADiagName
-}
-
-var userAssignedIdentities = {
-  Default: {
-    '${resourceId('Microsoft.ManagedIdentity/userAssignedIdentities/', '${Deployment}-uaiStorageAccountOperator')}': {}
-  }
-  VMOperator: {
-    '${resourceId('Microsoft.ManagedIdentity/userAssignedIdentities/', '${Deployment}-uaiVMOperator')}': {}
-    '${resourceId('Microsoft.ManagedIdentity/userAssignedIdentities/', '${Deployment}-uaiKeyVaultSecretsGetApp')}': {}
-  }
-}
-
-resource WS 'Microsoft.Web/sites@2021-01-01' = [for (ws, index) in WebSiteInfo: if (ws.deploy == 1 && WSInfo[index].match) {
-  name: '${Deployment}-fn${ws.Name}'
-  identity: {
-    type: 'SystemAssigned, UserAssigned'
-    userAssignedIdentities: (contains(MSILookup, ws.NAME) ? userAssignedIdentities[MSILookup[ws.NAME]] : userAssignedIdentities.Default)
-  }
-  kind: ws.kind
-  location: resourceGroup().location
-  properties: {
-    enabled: true
-    httpsOnly: true
-    serverFarmId: resourceId('Microsoft.Web/serverfarms', '${Deployment}-asp${ws.AppSVCPlan}')
-    siteConfig: {
-      // https://docs.microsoft.com/en-us/azure/azure-functions/functions-app-settings
-      appSettings: union(myAppConfig,[
-        {
-          name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'
-          value: 'DefaultEndpointsProtocol=https;AccountName=${SADiag.name};AccountKey=${SADiag.listKeys().keys[0].value};EndpointSuffix=${environment().suffixes.storage}'
-        }
-        {
-          name: 'WEBSITE_CONTENTSHARE'
-          value: toLower('${Deployment}-fn${ws.Name}')
-        }
-        {
-          name: 'WEBSITE_CONTENTOVERVNET'
-          value: 1
-        }
-        {
-          name: 'AzureWebJobsStorage'
-          value: 'DefaultEndpointsProtocol=https;AccountName=${SADiag.name};AccountKey=${SADiag.listKeys().keys[0].value};EndpointSuffix=${environment().suffixes.storage}'
-        }
-        {
-          name: 'Storage'
-          value: 'DefaultEndpointsProtocol=https;AccountName=${SADiag.name};AccountKey=${SADiag.listKeys().keys[0].value};EndpointSuffix=${environment().suffixes.storage}'
-        }
-        {
-          name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
-          value: reference(AppInsightsID, '2015-05-01').InstrumentationKey
-        }
-        {
-          name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
-          value: 'InstrumentationKey=${reference(AppInsightsID, '2015-05-01').InstrumentationKey}'
-        }
-        {
-          name: 'FUNCTIONS_WORKER_RUNTIME'
-          value: ws.runtime
-        }
-        {
-          name: 'FUNCTIONS_EXTENSION_VERSION'
-          value: '~3'
-        }
-      ])
-    }
-  }
+resource SA 'Microsoft.Storage/storageAccounts@2021-04-01' existing = [for (ws, index) in WebSiteInfo: if (WSInfo[index].match) {
+  name: '${DeploymentURI}sa${ws.saname}'
 }]
 
-resource WSDiags 'microsoft.insights/diagnosticSettings@2017-05-01-preview' = [for (ws, index) in WebSiteInfo: if (ws.deploy == 1 && WSInfo[index].match) {
-  name: 'service'
-  scope: WS[index]
-  properties: {
-    workspaceId: OMSworkspaceID
-    logs: [
+resource appsettingsCurrent 'Microsoft.Web/sites/config@2021-01-15' existing = [for (ws, index) in WebSiteInfo: if (WSInfo[index].match) {
+  name: '${Deployment}-fn${ws.Name}/appsettings'
+}]
+
+module functionApp 'x.appService.bicep' = [for (ws, index) in WebSiteInfo: if (WSInfo[index].match) {
+  name: 'dp${Deployment}-fn${ws.Name}'
+  params: {
+    ws: ws
+    appprefix: 'fn'
+    Deployment: Deployment
+    DeploymentURI: DeploymentURI
+    OMSworkspaceID: OMSworkspaceID
+    diagLogs: [
       {
         category: 'FunctionAppLogs'
         enabled: true
@@ -169,34 +94,35 @@ resource WSDiags 'microsoft.insights/diagnosticSettings@2017-05-01-preview' = [f
         }
       }
     ]
-    metrics: [
-      {
-        timeGrain: 'PT5M'
-        enabled: true
-        retentionPolicy: {
-          enabled: false
-          days: 0
-        }
-      }
-    ]
   }
 }]
 
-resource WSVirtualNetwork 'Microsoft.Web/sites/config@2021-01-01' = [for (ws, index) in WebSiteInfo: if (ws.deploy == 1 && WSInfo[index].match) {
-  name: 'virtualNetwork'
-  parent: WS[index]
-  properties: {
-    subnetResourceId: resourceId('Microsoft.Network/virtualNetworks/subnets', '${Deployment}-vn', ws.subnet)
-    swiftSupported: true
+module functionAppSettings 'x.appServiceSettings.bicep' = [for (ws, index) in WebSiteInfo: if (WSInfo[index].match) {
+  name: 'dp${Deployment}-fn${ws.Name}-settings'
+  params: {
+    ws: ws
+    appprefix: 'fn'
+    Deployment: Deployment
+    appConfigCustom: myAppConfig
+    appConfigCurrent: appsettingsCurrent[index].list().properties
+    appConfigNew: {
+      // https://docs.microsoft.com/en-us/azure/azure-functions/configure-networking-how-to
+      // https://docs.microsoft.com/en-us/azure/azure-functions/functions-app-settings
+      APPINSIGHTS_INSTRUMENTATIONKEY: reference(AppInsightsID, '2015-05-01').InstrumentationKey
+      APPLICATIONINSIGHTS_CONNECTION_STRING: 'InstrumentationKey=${reference(AppInsightsID, '2015-05-01').InstrumentationKey}'
+      WEBSITE_CONTENTAZUREFILECONNECTIONSTRING: 'DefaultEndpointsProtocol=https;AccountName=${SA[index].name};AccountKey=${SA[index].listKeys().keys[0].value}'
+      AzureWebJobsStorage: 'DefaultEndpointsProtocol=https;AccountName=${SA[index].name};AccountKey=${SA[index].listKeys().keys[0].value}'
+      Storage: 'DefaultEndpointsProtocol=https;AccountName=${SA[index].name};AccountKey=${SA[index].listKeys().keys[0].value}'
+      WEBSITE_CONTENTSHARE: replace(toLower('${ws.name}'),'-','')
+      WEBSITE_CONTENTOVERVNET: 1
+      WEBSITE_DNS_SERVER: Global.DNSServers[0]
+      WEBSITE_VNET_ROUTE_ALL: 1
+      FUNCTIONS_WORKER_RUNTIME: ws.runtime
+      FUNCTIONS_EXTENSION_VERSION: '~3'
+    }
   }
+  dependsOn: [
+    functionApp[index]
+  ]
 }]
-
-resource WSWebConfig 'Microsoft.Web/sites/config@2021-01-01' = [for (ws, index) in WebSiteInfo: if (ws.deploy == 1 && WSInfo[index].match) {
-  name: 'web'
-  parent: WS[index]
-  properties: {
-    preWarmedInstanceCount: ws.preWarmedCount
-  }
-}]
-
 
