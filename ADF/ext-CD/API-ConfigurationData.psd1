@@ -115,10 +115,10 @@
                 #     DestinationPath   = 'F:\Source\Tools\'
                 # },
 
-                # @{
-                #     SourcePathBlobURI = 'https://{0}.blob.core.windows.net/source/GIT/'
-                #     DestinationPath   = 'F:\Source\GIT\'
-                # },
+                @{
+                    SourcePathBlobURI = 'https://{0}.blob.core.windows.net/source/GIT/'
+                    DestinationPath   = 'F:\Source\GIT\'
+                },
 
                 # @{
                 #     SourcePathBlobURI = 'https://{0}.blob.core.windows.net/source/PSCore/'
