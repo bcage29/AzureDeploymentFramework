@@ -6,7 +6,7 @@
       "value": "ACU1"
     },
     "Environment": {
-      "value": "G"
+      "value": "M"
     },
     "DeploymentID": {
       "value": "0"
@@ -37,6 +37,7 @@
     },
     "Stage": {
       "value": {
+        "MG": 1,
         "RG": 0,
         "RoleDefinition": 1,
         "RBAC": 1,
@@ -119,10 +120,10 @@
       "value": {
         "rolesInfo": [
           {
-            "Name": "BW",
+            "name": "BW",
             "RBAC": [
               {
-                "Name": "Owner"
+                "name": "Owner"
               }
             ]
           }
@@ -139,14 +140,57 @@
         ],
         "mgInfo" : [
           {
-            "DisplayName": "Global",
-            "Parent": "Tenant Root Group"
+            "displayName": "Root Management Group",
+            "name": "11cb9e1b-bd08-4f80-bb8f-f71940c39079",
+            "parentName": null,
+            "subscriptions": []
           },
           {
-            "DisplayName": "PSO",
-            "Parent": "Global"
+            "displayName": "HA-APP",
+            "name": "HA-APP",
+            "parentName": "11cb9e1b-bd08-4f80-bb8f-f71940c39079",
+            "subscriptions": []
+          },
+          {
+            "displayName": "HA-APP-decommissioned",
+            "name": "HA-APP-decommissioned",
+            "parentName": "HA-APP",
+            "subscriptions": []
+          },
+          {
+            "displayName": "HA-APP-landingzones",
+            "name": "HA-APP-landingzones",
+            "parentName": "HA-APP"
+            // "subscriptions": []
+          },
+          {
+            "displayName": "HA-APP-management",
+            "name": "HA-APP-management",
+            "parentName": "HA-APP-platform",
+            "subscriptions": []
+          },
+          {
+            "displayName": "HA-APP-online",
+            "name": "HA-APP-online",
+            "parentName": "HA-APP-landingzones",
+            "subscriptions": [
+              "855c22ce-7a6c-468b-ac72-1d1ef4355acf"
+            ]
+          },
+          {
+            "displayName": "HA-APP-platform",
+            "name": "HA-APP-platform",
+            "parentName": "HA-APP",
+            "subscriptions": []
+          },
+          {
+            "displayName": "HA-APP-sandboxes",
+            "name": "HA-APP-sandboxes",
+            "parentName": "HA-APP",
+            "subscriptions": []
           }
         ]
+        
       }
     }
   }

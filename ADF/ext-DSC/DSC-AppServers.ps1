@@ -19,14 +19,13 @@ Configuration $Configuration
         [switch]$NoDomainJoin
     )
 
-    Import-DscResource -ModuleName PSDesiredStateConfiguration
+    Import-DscResource -ModuleName PSDscResources
     Import-DscResource -ModuleName ComputerManagementDsc
     Import-DscResource -ModuleName ActiveDirectoryDSC
     Import-DscResource -ModuleName StorageDsc
     Import-DscResource -ModuleName xWebAdministration
-    Import-DscResource -ModuleName xPSDesiredStateConfiguration
+    # Import-DscResource -ModuleName xPSDesiredStateConfiguration
     Import-DscResource -ModuleName SecurityPolicyDSC
-    Import-DscResource -ModuleName xTimeZone
     Import-DscResource -ModuleName xWindowsUpdate
     Import-DscResource -ModuleName xDSCFirewall
     Import-DscResource -ModuleName NetworkingDSC
@@ -217,7 +216,7 @@ Configuration $Configuration
         }
 
         #-------------------------------------------------------------------
-        xTimeZone timezone
+        TimeZone timezone
         { 
             IsSingleInstance = 'Yes'
             TimeZone         = iif $Node.timezone $Node.timezone 'Eastern Standard Time'
@@ -254,18 +253,6 @@ Configuration $Configuration
                 PolicyType   = $LocalPolicy.PolicyType
                 Data         = $LocalPolicy.Data
                 Type         = $LocalPolicy.Type
-
-            }
-        }
-
-        #-------------------------------------------------------------------
-        if ($Node.Present)
-        {
-            xWindowsFeatureSet WindowsFeatureSetPresent
-            {
-                Ensure = 'Present'
-                Name   = $Node.Present
-                #Source = $Node.SXSPath
             }
         }
 
@@ -281,6 +268,17 @@ Configuration $Configuration
         }
 
         #-------------------------------------------------------------------
+        # Server
+        if ($Node.WindowsFeatureSetPresent)
+        {
+            WindowsFeatureSet WindowsFeatureSetPresent
+            {
+                Ensure = 'Present'
+                Name   = $Node.Present
+                #Source = $Node.SXSPath
+            }
+        }
+
         foreach ($Feature in $Node.WindowsFeaturePresent)
         {
             WindowsFeature $Feature
@@ -288,6 +286,28 @@ Configuration $Configuration
                 Name                 = $Feature
                 Ensure               = 'Present'
                 IncludeAllSubFeature = $true
+            }
+            $dependsonFeatures += @("[WindowsFeature]$Feature")
+        }
+
+        #-------------------------------------------------------------------
+        # Client
+        if ($Node.WindowsOptionalFeatureSetPresent)
+        {
+            WindowsOptionalFeatureSet WindowsOptionalFeatureSet
+            {
+                Ensure = 'Present'
+                Name   = $Node.WindowsOptionalFeatureSetPresent
+                #Source = $Node.SXSPath
+            }
+        }
+
+        foreach ($Feature in $Node.WindowsOptionalFeaturePresent)
+        {
+            WindowsOptionalFeature $Feature
+            {
+                Name   = $Feature
+                Ensure = 'Present'
             }
             $dependsonFeatures += @("[WindowsFeature]$Feature")
         }
@@ -305,7 +325,7 @@ Configuration $Configuration
         #-------------------------------------------------------------------
         if ($Node.ServiceSetStopped)
         {
-            xServiceSet ServiceSetStopped
+            ServiceSet ServiceSetStopped
             {
                 Name  = $Node.ServiceSetStopped
                 State = 'Stopped'
@@ -411,7 +431,7 @@ Configuration $Configuration
         }
 
         #-------------------------------------------------------------------
-        #To clean up resource names use a regular expression to remove spaces, slashes an colons Etc.
+        #To clean up resource names use a regular expression to remove spaces, slashes and colons Etc.
         $StringFilter = '\W', ''
 
         foreach ($Group in $Node.GroupMemberPresent)
@@ -643,7 +663,7 @@ Configuration $Configuration
                 Name                  = ($AppPool.Name -f $environment)
                 State                 = 'Started'
                 autoStart             = $true
-                DependsOn             = '[xServiceSet]ServiceSetStarted'
+                DependsOn             = '[ServiceSet]ServiceSetStarted'
                 managedRuntimeVersion = $AppPool.Version
                 identityType          = 'SpecificUser'
                 Credential            = $credlookup['DomainCreds']
@@ -705,7 +725,7 @@ Configuration $Configuration
             $Domain	= $credlookup['DomainCreds'].GetNetworkCredential().Domain
             $UserName = $credlookup['DomainCreds'].GetNetworkCredential().UserName
 
-            script $vdname
+            Script $vdname
             {
                 DependsOn  = $dependsonWebVirtualDirectory 
                 
@@ -820,7 +840,7 @@ Configuration $Configuration
         foreach ($Package in $Node.SoftwarePackagePresent)
         {
             $Name = $Package.Name -replace $StringFilter
-            xPackage $Name
+            Get-Package $Name
             {
                 Name                 = $Package.Name
                 Path                 = $Package.Path
@@ -845,7 +865,7 @@ Configuration $Configuration
                 Path                       = $Package.Path
                 Ensure                     = 'Present'
                 ProductId                  = $Package.ProductId
-                DependsOn                  = $dependsonDirectory + $dependsonArchive
+                DependsOn = $dependsonDirectory + $dependsonArchive
                 Arguments                  = $Package.Arguments
                 RunAsCredential            = $credlookup['DomainCreds'] 
                 CreateCheckRegValue        = $true 
@@ -873,7 +893,7 @@ Configuration $Configuration
         foreach ($NewService in $Node.NewServicePresent)
         {
             $Name = $NewService.Name -replace $StringFilter
-            xService $Name
+            Service $Name
             {
                 Name        = $NewService.Name
                 Path        = $NewService.Path
@@ -884,13 +904,13 @@ Configuration $Configuration
                 State       = $NewService.State
                 DependsOn   = $apps 
             }
-            $dependsonService += @("[xService]$($Name)")
+            $dependsonService += @("[Service]$($Name)")
         }
 
         #-------------------------------------------------------------------
         if ($Node.ServiceSetStarted)
         {
-            xServiceSet ServiceSetStarted
+            ServiceSet ServiceSetStarted
             {
                 Name        = $Node.ServiceSetStarted
                 State       = 'Running'
@@ -976,15 +996,15 @@ else
 #endregion
 
 Import-Module $psscriptroot\..\..\bin\DscExtensionHandlerSettingManager.psm1
-$ConfigurationArguments = Get-DscExtensionHandlerSettings | foreach ConfigurationArguments
+$ConfigurationArguments = Get-DscExtensionHandlerSettings | ForEach-Object ConfigurationArguments
 
 $sshPublicPW = ConvertTo-SecureString -String $ConfigurationArguments['sshPublic'].Password -AsPlainText -Force
 $devOpsPatPW = ConvertTo-SecureString -String $ConfigurationArguments['devOpsPat'].Password -AsPlainText -Force
 $AdminCredsPW = ConvertTo-SecureString -String $ConfigurationArguments['AdminCreds'].Password -AsPlainText -Force
 
-$ConfigurationArguments['sshPublic'] = [pscredential]::new($ConfigurationArguments['sshPublic'].UserName,$sshPublicPW)
-$ConfigurationArguments['devOpsPat'] = [pscredential]::new($ConfigurationArguments['devOpsPat'].UserName,$devOpsPatPW)
-$ConfigurationArguments['AdminCreds'] = [pscredential]::new($ConfigurationArguments['AdminCreds'].UserName,$AdminCredsPW)
+$ConfigurationArguments['sshPublic'] = [pscredential]::new($ConfigurationArguments['sshPublic'].UserName, $sshPublicPW)
+$ConfigurationArguments['devOpsPat'] = [pscredential]::new($ConfigurationArguments['devOpsPat'].UserName, $devOpsPatPW)
+$ConfigurationArguments['AdminCreds'] = [pscredential]::new($ConfigurationArguments['AdminCreds'].UserName, $AdminCredsPW)
 
 $Params = @{
     ConfigurationData = '.\*-ConfigurationData.psd1'

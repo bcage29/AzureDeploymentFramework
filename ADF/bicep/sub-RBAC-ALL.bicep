@@ -91,6 +91,5 @@ module RBACRARG 'sub-RBAC-ALL-RA-RG.bicep' = [for (rbac, index) in roleAssignmen
     }
 }]
 
-
 output RoleAssignments array = roleAssignment
 

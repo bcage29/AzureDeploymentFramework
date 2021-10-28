@@ -51,7 +51,7 @@
         "SP": 1,
         "KV": 1,
         "OMS": 1,
-        "OMSSolutions": 0,
+        "OMSSolutions": 1,
         "OMSDataSources": 1,
         "SA": 1,
         "CDN": 0,
@@ -111,23 +111,23 @@
     },
     "Extensions": {
       "value": {
-        "MonitoringAgent": 0,//
-        "IaaSDiagnostics": 0,//
-        "DependencyAgent": 0,//
-        "AzureMonitorAgent": 0,//
-        "GuestHealthAgent": 0, // 
-        "VMInsights": 0, //
+        "MonitoringAgent": 1, // use AzureMonitorAgent instead
+        "AzureMonitorAgent": 1,
+        "IaaSDiagnostics": 1,
+        "DependencyAgent": 1,
+        "GuestHealthAgent": 1,
+        "VMInsights": 1,
         "AdminCenter": 0,
         "BackupWindowsWorkloadSQL": 0,
-        "DSC": 1,
-        "DSC2": 1,
+        "DSC": 0,
+        "DSC2": 0,
         "Scripts": 1,
         "MSI": 0,
         "CertMgmt": 0,
         "DomainJoin": 1,
         "AADLogin": 0,
         "WindowsOpenSSH": 0,
-        "Antimalware": 0,  //
+        "Antimalware": 1,
         "VMSSAzureADEnabled": 0,
         "SqlIaasExtension": 0
       }
@@ -341,24 +341,24 @@
             "name": "snMT01",
             "prefix": "0/27",
             "NSG": 1,
-            "FlowLogEnabled": true,
-            "FlowAnalyticsEnabled": true
+            "FlowLogEnabled": 1,
+            "FlowAnalyticsEnabled": 1
             // "delegations": "Microsoft.Web/serverfarms"
           },
           {
             "name": "snFE01",
             "prefix": "32/27",
             "NSG": 1,
-            "FlowLogEnabled": true,
-            "FlowAnalyticsEnabled": true
+            "FlowLogEnabled": 1,
+            "FlowAnalyticsEnabled": 1
           },
           {
             "name": "snAD01",
             "prefix": "64/28",
             "NSG": 1,
             "Route": 0,
-            "FlowLogEnabled": true,
-            "FlowAnalyticsEnabled": true
+            "FlowLogEnabled": 1,
+            "FlowAnalyticsEnabled": 1
           },
           {
             "name": "snBE01",
@@ -366,31 +366,31 @@
             "NSG": 1,
             "NGW": 1,
             "Route": 0, // 1
-            "FlowLogEnabled": true,
-            "FlowAnalyticsEnabled": true
+            "FlowLogEnabled": 1,
+            "FlowAnalyticsEnabled": 1
           },
           {
             "name": "AzureBastionSubnet",
             "prefix": "96/27",
             "NSG": 1,
-            "FlowLogEnabled": true,
-            "FlowAnalyticsEnabled": true
+            "FlowLogEnabled": 1,
+            "FlowAnalyticsEnabled": 1
           },
           {
             "name": "snWAF01",
             "prefix": "128/25",
             "NSG": 1,
             "Route": 0,
-            "FlowLogEnabled": true,
-            "FlowAnalyticsEnabled": true
+            "FlowLogEnabled": 1,
+            "FlowAnalyticsEnabled": 1
           },
           {
             "name": "snMT02",
             "prefix": "0/24",
             "NSG": 1,
             "Route": 1,
-            "FlowLogEnabled": true,
-            "FlowAnalyticsEnabled": true
+            "FlowLogEnabled": 1,
+            "FlowAnalyticsEnabled": 1
           }
         ],
         "BastionInfo": {
@@ -523,11 +523,11 @@
             {
               "Name": "JMP01",
               "Role": "JMP",
-              "ASName": "JMP",
+              // "ASName": "JMP",
               "DDRole": "64GB",
               "OSType": "Server2022",
               "ExcludeAdminCenter": 1,
-              // "ExcludeDomainJoin": 1,
+              "ExcludeDomainJoin": 1,
               "Zone": 1,
               "NICs": [
                 {
@@ -541,13 +541,17 @@
             },
             {
               "Name": "JMP02",
-              "Role": "JMP",
-              "ASName": "JMP",
+              "Role": "CLT",
+              // "ASName": "JMP",
               "DDRole": "64GB",
               "OSType": "Win10",
               "ExcludeAdminCenter": 1,
               "ExcludeDomainJoin": 1,
               "Zone": 1,
+              "shutdown": {
+                "time": "2100",
+                "enabled": 0
+              },
               "NICs": [
                 {
                   "Subnet": "FE01",
